@@ -17,9 +17,7 @@
 ## 本地验证
 
 ```sh
-swift test --package-path Packages/BadmintonCore
-xcodebuild -project BadmintonMotion.xcodeproj -scheme BadmintonResearchiOS -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
-xcodebuild -project BadmintonMotion.xcodeproj -scheme BadmintonResearchWatch -sdk watchsimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+./Scripts/verify.sh
 ```
 
 部署到真实设备前，需要在 Xcode 中替换临时 Bundle Identifier、配置开发团队，并完成文档规定的真机验收。
