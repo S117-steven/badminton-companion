@@ -131,6 +131,91 @@ final class ResearchCaptureSessionCoordinatorTests: XCTestCase {
         XCTAssertNil(existing.endedAt)
     }
 
+    func testQualitySummaryKeepsSensorStreamsIndependent() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = ResearchCaptureFileStore(baseDirectory: root)
+        let coordinator = try ResearchCaptureSessionCoordinator(
+            store: store,
+            flushBatchSize: 4
+        )
+        let source = ControlledMotionSource(provenance: .automatedTestFixture)
+        let manifest = makeManifest(provenance: .automatedTestFixture)
+        _ = try await coordinator.start(
+            manifest: manifest,
+            source: source,
+            configuration: .init(requestedIntervalSeconds: 0.01)
+        )
+
+        await source.emit([
+            makeSample(sequence: 0, source: .accelerometer, elapsed: 0, interval: nil),
+            makeSample(sequence: 1, source: .gyroscope, elapsed: 0, interval: nil),
+            makeSample(sequence: 2, source: .accelerometer, elapsed: 0.01, interval: 0.01),
+            makeSample(sequence: 3, source: .gyroscope, elapsed: 0.02, interval: 0.02),
+        ])
+        try await waitUntil {
+            await coordinator.currentSnapshot().persistedSampleCount == 4
+        }
+        _ = try await coordinator.stop(at: manifest.startedAt.addingTimeInterval(1))
+
+        let restored = try await store.loadManifest(captureID: manifest.id)
+        let summaries = try XCTUnwrap(restored.quality.sourceSummaries)
+        let accelerometer = try XCTUnwrap(
+            summaries.first { $0.source == .accelerometer }
+        )
+        let gyroscope = try XCTUnwrap(
+            summaries.first { $0.source == .gyroscope }
+        )
+
+        XCTAssertEqual(accelerometer.sampleCount, 2)
+        XCTAssertEqual(accelerometer.averageActualIntervalSeconds, 0.01)
+        XCTAssertEqual(gyroscope.sampleCount, 2)
+        XCTAssertEqual(gyroscope.averageActualIntervalSeconds, 0.02)
+        XCTAssertEqual(restored.quality.averageActualIntervalSeconds, 0.015)
+    }
+
+    func testEventBufferOverflowInterruptsInsteadOfSilentlyDropping() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = ResearchCaptureFileStore(baseDirectory: root)
+        let coordinator = try ResearchCaptureSessionCoordinator(
+            store: store,
+            flushBatchSize: 1,
+            eventBufferCapacity: 1
+        )
+        let source = ControlledMotionSource(provenance: .automatedTestFixture)
+        let manifest = makeManifest(provenance: .automatedTestFixture)
+        _ = try await coordinator.start(
+            manifest: manifest,
+            source: source,
+            configuration: .init(requestedIntervalSeconds: 0.01)
+        )
+
+        await source.emitBursts(
+            (0..<200).map { index in
+                [makeSample(
+                    sequence: UInt64(index),
+                    elapsed: Double(index) * 0.01,
+                    interval: index == 0 ? nil : 0.01
+                )]
+            }
+        )
+        try await waitUntil {
+            await coordinator.currentSnapshot().phase == .failed
+        }
+
+        let snapshot = await coordinator.currentSnapshot()
+        let restored = try await store.loadManifest(captureID: manifest.id)
+        XCTAssertEqual(snapshot.failure?.code, "sample_event_buffer_overflow")
+        XCTAssertEqual(restored.state, .interrupted)
+        XCTAssertGreaterThan(restored.quality.suspectedDroppedSampleCount, 0)
+        XCTAssertLessThan(restored.sampleCount, 200)
+    }
+
     private func makeManifest(
         provenance: ResearchDataProvenance
     ) -> ResearchCaptureManifest {
@@ -151,12 +236,13 @@ final class ResearchCaptureSessionCoordinatorTests: XCTestCase {
 
     private func makeSample(
         sequence: UInt64,
+        source: ResearchSensorSource = .accelerometer,
         elapsed: TimeInterval,
         interval: TimeInterval?
     ) -> ResearchMotionSample {
         ResearchMotionSample(
             sequenceNumber: sequence,
-            source: .accelerometer,
+            source: source,
             monotonicTimestampSeconds: 100 + elapsed,
             elapsedTimeSeconds: elapsed,
             actualIntervalSeconds: interval,
@@ -200,6 +286,12 @@ private actor ControlledMotionSource: ResearchMotionSource {
 
     func emit(_ samples: [ResearchMotionSample]) {
         handler?(.samples(samples))
+    }
+
+    func emitBursts(_ bursts: [[ResearchMotionSample]]) {
+        for samples in bursts {
+            handler?(.samples(samples))
+        }
     }
 
     func fail(code: String, message: String) {

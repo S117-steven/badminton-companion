@@ -42,4 +42,28 @@ final class ResearchCaptureManifestTests: XCTestCase {
             )
         }
     }
+
+    func testSchemaTwoManifestRemainsReadableWithoutSourceSummaries() throws {
+        let manifest = ResearchCaptureManifest(
+            schemaVersion: 2,
+            participantID: UUID(),
+            mode: .normalShotBatch,
+            manualLabel: .normalShot,
+            provenance: .simulatorSynthetic,
+            device: device,
+            quality: .init(requestedIntervalSeconds: 0.02)
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let restored = try decoder.decode(
+            ResearchCaptureManifest.self,
+            from: encoder.encode(manifest)
+        )
+
+        XCTAssertEqual(restored.schemaVersion, 2)
+        XCTAssertNil(restored.quality.sourceSummaries)
+    }
 }

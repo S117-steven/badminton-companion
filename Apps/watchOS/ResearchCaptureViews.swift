@@ -4,6 +4,7 @@ import SwiftUI
 struct ResearchCaptureSetupView: View {
     let mode: ResearchCaptureMode
     @State private var selectedLabel: ManualActionLabel
+    @State private var requestedIntervalSeconds = 0.01
 
     init(mode: ResearchCaptureMode) {
         self.mode = mode
@@ -36,12 +37,23 @@ struct ResearchCaptureSetupView: View {
                 }
             }
 
+            Section("采样请求") {
+                Picker("频率", selection: $requestedIntervalSeconds) {
+                    Text("100 Hz").tag(0.01)
+                    Text("50 Hz").tag(0.02)
+                }
+                Text("实际频率以真机回调时间戳为准。")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             NavigationLink("进入采集") {
                 ResearchCaptureSessionView(
                     mode: mode,
                     manualLabel: mode == .freePlay
                         ? nil
-                        : mode.fixedManualLabel ?? selectedLabel
+                        : mode.fixedManualLabel ?? selectedLabel,
+                    requestedIntervalSeconds: requestedIntervalSeconds
                 )
             }
         }
@@ -52,9 +64,17 @@ struct ResearchCaptureSetupView: View {
 private struct ResearchCaptureSessionView: View {
     @StateObject private var model: WatchCaptureViewModel
 
-    init(mode: ResearchCaptureMode, manualLabel: ManualActionLabel?) {
+    init(
+        mode: ResearchCaptureMode,
+        manualLabel: ManualActionLabel?,
+        requestedIntervalSeconds: TimeInterval
+    ) {
         _model = StateObject(
-            wrappedValue: WatchCaptureViewModel(mode: mode, manualLabel: manualLabel)
+            wrappedValue: WatchCaptureViewModel(
+                mode: mode,
+                manualLabel: manualLabel,
+                requestedIntervalSeconds: requestedIntervalSeconds
+            )
         )
     }
 

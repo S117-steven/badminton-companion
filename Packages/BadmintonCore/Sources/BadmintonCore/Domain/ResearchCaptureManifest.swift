@@ -1,6 +1,8 @@
 import Foundation
 
-public struct SamplingQualitySummary: Codable, Equatable, Sendable {
+public struct SensorStreamQualitySummary: Codable, Equatable, Sendable {
+    public let source: ResearchSensorSource
+    public var sampleCount: Int
     public var requestedIntervalSeconds: Double?
     public var averageActualIntervalSeconds: Double?
     public var maximumActualIntervalSeconds: Double?
@@ -9,6 +11,8 @@ public struct SamplingQualitySummary: Codable, Equatable, Sendable {
     public var suspectedSaturationSampleCount: Int
 
     public init(
+        source: ResearchSensorSource,
+        sampleCount: Int,
         requestedIntervalSeconds: Double? = nil,
         averageActualIntervalSeconds: Double? = nil,
         maximumActualIntervalSeconds: Double? = nil,
@@ -16,12 +20,43 @@ public struct SamplingQualitySummary: Codable, Equatable, Sendable {
         suspectedDroppedSampleCount: Int = 0,
         suspectedSaturationSampleCount: Int = 0
     ) {
+        self.source = source
+        self.sampleCount = sampleCount
         self.requestedIntervalSeconds = requestedIntervalSeconds
         self.averageActualIntervalSeconds = averageActualIntervalSeconds
         self.maximumActualIntervalSeconds = maximumActualIntervalSeconds
         self.abnormalIntervalCount = abnormalIntervalCount
         self.suspectedDroppedSampleCount = suspectedDroppedSampleCount
         self.suspectedSaturationSampleCount = suspectedSaturationSampleCount
+    }
+}
+
+public struct SamplingQualitySummary: Codable, Equatable, Sendable {
+    public var requestedIntervalSeconds: Double?
+    public var averageActualIntervalSeconds: Double?
+    public var maximumActualIntervalSeconds: Double?
+    public var abnormalIntervalCount: Int
+    public var suspectedDroppedSampleCount: Int
+    public var suspectedSaturationSampleCount: Int
+    /// Added in schema v3. Optional so pre-v3 development captures remain readable.
+    public var sourceSummaries: [SensorStreamQualitySummary]?
+
+    public init(
+        requestedIntervalSeconds: Double? = nil,
+        averageActualIntervalSeconds: Double? = nil,
+        maximumActualIntervalSeconds: Double? = nil,
+        abnormalIntervalCount: Int = 0,
+        suspectedDroppedSampleCount: Int = 0,
+        suspectedSaturationSampleCount: Int = 0,
+        sourceSummaries: [SensorStreamQualitySummary]? = nil
+    ) {
+        self.requestedIntervalSeconds = requestedIntervalSeconds
+        self.averageActualIntervalSeconds = averageActualIntervalSeconds
+        self.maximumActualIntervalSeconds = maximumActualIntervalSeconds
+        self.abnormalIntervalCount = abnormalIntervalCount
+        self.suspectedDroppedSampleCount = suspectedDroppedSampleCount
+        self.suspectedSaturationSampleCount = suspectedSaturationSampleCount
+        self.sourceSummaries = sourceSummaries
     }
 }
 
@@ -69,7 +104,7 @@ public enum ResearchCaptureValidationError: Error, Equatable, Sendable {
 }
 
 public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendable {
-    public static let currentSchemaVersion = 2
+    public static let currentSchemaVersion = 3
 
     public let schemaVersion: Int
     public let id: UUID

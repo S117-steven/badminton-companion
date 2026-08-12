@@ -138,4 +138,51 @@ final class ResearchCaptureFileStoreTests: XCTestCase {
         XCTAssertEqual(recovered[0].sampleCount, 1)
         XCTAssertEqual(recovered[0].endedAt, startedAt.addingTimeInterval(5))
     }
+
+    func testDecimatedSampleLoadKeepsBoundAndEndpoints() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = ResearchCaptureFileStore(baseDirectory: root)
+        let manifest = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .freePlay,
+            manualLabel: nil,
+            provenance: .automatedTestFixture,
+            device: .init(
+                hardwareModel: "test-watch",
+                operatingSystemVersion: "test-os",
+                applicationVersion: "0.1.0",
+                applicationBuild: "1"
+            )
+        )
+        try await store.createCapture(manifest)
+        var samples: [ResearchMotionSample] = []
+        for index in 0..<10 {
+            let value = Double(index)
+            samples.append(ResearchMotionSample(
+                sequenceNumber: UInt64(index),
+                source: .accelerometer,
+                monotonicTimestampSeconds: value,
+                elapsedTimeSeconds: value,
+                actualIntervalSeconds: index == 0 ? nil : 1,
+                accelerationMetersPerSecondSquared: .init(
+                    x: value,
+                    y: 0,
+                    z: 0
+                )
+            ))
+        }
+        _ = try await store.append(samples, to: manifest.id)
+
+        let decimated = try await store.loadSamples(
+            captureID: manifest.id,
+            maximumCount: 3
+        )
+
+        XCTAssertLessThanOrEqual(decimated.count, 3)
+        XCTAssertEqual(decimated.first?.sequenceNumber, 0)
+        XCTAssertEqual(decimated.last?.sequenceNumber, 9)
+    }
 }

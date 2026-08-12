@@ -6,6 +6,7 @@ public enum ResearchCaptureStoreError: Error, Equatable, Sendable {
     case captureIsNotCollecting(UUID)
     case captureConflict(UUID)
     case importedSampleCountMismatch(expected: Int, actual: Int)
+    case invalidSampleLimit
 }
 
 public enum ResearchCaptureImportResult: Equatable, Sendable {
@@ -168,6 +169,78 @@ public actor ResearchCaptureFileStore {
         return try data
             .split(separator: 0x0A)
             .map { try decoder.decode(ResearchMotionSample.self, from: Data($0)) }
+    }
+
+    /// Streams and uniformly decimates a capture for UI inspection without
+    /// loading the complete high-frequency file into memory.
+    public func loadSamples(
+        captureID: UUID,
+        maximumCount: Int
+    ) throws -> [ResearchMotionSample] {
+        guard maximumCount > 0 else {
+            throw ResearchCaptureStoreError.invalidSampleLimit
+        }
+        let manifest = try loadManifest(captureID: captureID)
+        let url = samplesURL(for: captureID)
+        guard fileManager.fileExists(atPath: url.path) else {
+            throw ResearchCaptureStoreError.captureNotFound(captureID)
+        }
+
+        let stride: Int
+        if manifest.sampleCount <= maximumCount {
+            stride = 1
+        } else if maximumCount == 1 {
+            stride = Int.max
+        } else {
+            stride = max(
+                1,
+                Int(
+                    ceil(
+                        Double(manifest.sampleCount - 1) / Double(maximumCount - 1)
+                    )
+                )
+            )
+        }
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+
+        var samples: [ResearchMotionSample] = []
+        samples.reserveCapacity(min(maximumCount + 1, manifest.sampleCount))
+        var pending = Data()
+        var recordIndex = 0
+        var lastLine: Data?
+        var lastLineWasSelected = false
+
+        func process(_ line: Data) throws {
+            guard !line.isEmpty else { return }
+            let isSelected = recordIndex.isMultiple(of: stride)
+            if isSelected {
+                samples.append(try decoder.decode(ResearchMotionSample.self, from: line))
+            }
+            lastLine = line
+            lastLineWasSelected = isSelected
+            recordIndex += 1
+        }
+
+        while true {
+            let chunk = try handle.read(upToCount: 64 * 1_024) ?? Data()
+            if chunk.isEmpty { break }
+            pending.append(chunk)
+            let lines = pending.split(separator: 0x0A, omittingEmptySubsequences: false)
+            guard lines.count > 1 else { continue }
+            for line in lines.dropLast() {
+                try process(Data(line))
+            }
+            pending = Data(lines[lines.index(before: lines.endIndex)])
+        }
+        if !pending.isEmpty {
+            try process(pending)
+        }
+
+        if samples.count < maximumCount, !lastLineWasSelected, let lastLine {
+            samples.append(try decoder.decode(ResearchMotionSample.self, from: lastLine))
+        }
+        return samples
     }
 
     public func listManifests() throws -> [ResearchCaptureManifest] {

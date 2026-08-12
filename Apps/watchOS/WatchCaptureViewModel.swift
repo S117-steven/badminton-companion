@@ -18,21 +18,30 @@ final class WatchCaptureViewModel: ObservableObject {
 
     let mode: ResearchCaptureMode
     let manualLabel: ManualActionLabel?
+    let requestedIntervalSeconds: TimeInterval
 
     private let store: ResearchCaptureFileStore
     private var coordinator: ResearchCaptureSessionCoordinator?
     private var monitorTask: Task<Void, Never>?
 
-    init(mode: ResearchCaptureMode, manualLabel: ManualActionLabel?) {
+    init(
+        mode: ResearchCaptureMode,
+        manualLabel: ManualActionLabel?,
+        requestedIntervalSeconds: TimeInterval
+    ) {
         self.mode = mode
         self.manualLabel = manualLabel
+        self.requestedIntervalSeconds = requestedIntervalSeconds
         store = ResearchCaptureFileStore(baseDirectory: Self.captureDirectory)
     }
 
     func start() async {
-#if targetEnvironment(simulator)
         do {
+#if targetEnvironment(simulator)
             let source = SimulatorResearchMotionSource()
+#else
+            let source = CoreMotionResearchMotionSource()
+#endif
             let coordinator = try ResearchCaptureSessionCoordinator(
                 store: store,
                 flushBatchSize: 75
@@ -48,16 +57,15 @@ final class WatchCaptureViewModel: ObservableObject {
             snapshot = try await coordinator.start(
                 manifest: manifest,
                 source: source,
-                configuration: .init(requestedIntervalSeconds: 0.02)
+                configuration: .init(
+                    requestedIntervalSeconds: requestedIntervalSeconds
+                )
             )
             errorMessage = nil
             startMonitoring()
         } catch {
             errorMessage = String(describing: error)
         }
-#else
-        errorMessage = "真机 Core Motion 适配器将在阶段 2 接入；当前不以合成数据代替真机采集。"
-#endif
     }
 
     func stop() async {

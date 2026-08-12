@@ -39,11 +39,13 @@ public enum ResearchCaptureSessionError: Error, Equatable, Sendable {
     case sessionNotActive
     case provenanceMismatch
     case invalidBufferSize
+    case invalidEventBufferCapacity
 }
 
 public actor ResearchCaptureSessionCoordinator {
     private let store: ResearchCaptureFileStore
     private let flushBatchSize: Int
+    private let eventBufferCapacity: Int
 
     private var phase: ResearchCaptureSessionPhase = .idle
     private var manifest: ResearchCaptureManifest?
@@ -58,15 +60,25 @@ public actor ResearchCaptureSessionCoordinator {
     private var failure: ResearchMotionSourceFailure?
     private var captureCreated = false
     private var acceptsSamples = false
+    private let overflowTracker = ResearchOverflowTracker()
+    private var sourceStatistics: [ResearchSensorSource: SourceStatistics] = [:]
     private var eventContinuation: AsyncStream<ResearchMotionSourceEvent>.Continuation?
     private var eventTask: Task<Void, Never>?
 
-    public init(store: ResearchCaptureFileStore, flushBatchSize: Int = 100) throws {
+    public init(
+        store: ResearchCaptureFileStore,
+        flushBatchSize: Int = 100,
+        eventBufferCapacity: Int = 2_048
+    ) throws {
         guard flushBatchSize > 0 else {
             throw ResearchCaptureSessionError.invalidBufferSize
         }
+        guard eventBufferCapacity > 0 else {
+            throw ResearchCaptureSessionError.invalidEventBufferCapacity
+        }
         self.store = store
         self.flushBatchSize = flushBatchSize
+        self.eventBufferCapacity = eventBufferCapacity
     }
 
     @discardableResult
@@ -104,7 +116,9 @@ public actor ResearchCaptureSessionCoordinator {
 
         phase = .collecting
         acceptsSamples = true
-        let (eventStream, continuation) = AsyncStream<ResearchMotionSourceEvent>.makeStream()
+        let (eventStream, continuation) = AsyncStream<ResearchMotionSourceEvent>.makeStream(
+            bufferingPolicy: .bufferingOldest(eventBufferCapacity)
+        )
         eventContinuation = continuation
         eventTask = Task { [weak self] in
             for await event in eventStream {
@@ -113,8 +127,27 @@ public actor ResearchCaptureSessionCoordinator {
             }
         }
         do {
-            try await source.start(configuration: configuration) { event in
-                continuation.yield(event)
+            try await source.start(configuration: configuration) { [weak self] event in
+                switch continuation.yield(event) {
+                case .dropped(let droppedEvent):
+                    let droppedSampleCount: Int
+                    switch droppedEvent {
+                    case .samples(let samples):
+                        droppedSampleCount = samples.count
+                    case .failure:
+                        droppedSampleCount = 0
+                    }
+                    self?.overflowTracker.record(
+                        droppedSampleCount: droppedSampleCount
+                    )
+                    Task {
+                        await self?.handleEventBufferOverflow()
+                    }
+                case .enqueued, .terminated:
+                    break
+                @unknown default:
+                    break
+                }
             }
             return snapshot()
         } catch {
@@ -141,13 +174,18 @@ public actor ResearchCaptureSessionCoordinator {
         eventContinuation = nil
         eventTask = nil
         try await flush()
+        let overflowCount = overflowTracker.droppedSampleCount
+        if overflowCount > 0 {
+            failure = overflowFailure()
+        }
         let finished = try await store.finishCapture(
             captureID: captureID,
             endedAt: endedAt,
+            state: overflowCount > 0 ? .interrupted : .completed,
             quality: qualitySummary()
         )
         persistedSampleCount = finished.sampleCount
-        phase = .completed
+        phase = overflowCount > 0 ? .failed : .completed
         source = nil
         return snapshot()
     }
@@ -255,17 +293,45 @@ public actor ResearchCaptureSessionCoordinator {
     private func flush() async throws {
         guard !buffer.isEmpty, let captureID = manifest?.id else { return }
         let samples = buffer
-        let updated = try await store.append(samples, to: captureID)
         buffer.removeFirst(samples.count)
-        persistedSampleCount = updated.sampleCount
+        do {
+            let updated = try await store.append(samples, to: captureID)
+            persistedSampleCount = updated.sampleCount
+        } catch {
+            buffer.insert(contentsOf: samples, at: buffer.startIndex)
+            throw error
+        }
     }
 
     private func recordIntervals(from samples: [ResearchMotionSample]) {
-        for interval in samples.compactMap(\.actualIntervalSeconds) where interval >= 0 {
-            intervalTotal += interval
-            intervalCount += 1
-            maximumInterval = max(maximumInterval ?? interval, interval)
+        for sample in samples {
+            var statistics = sourceStatistics[sample.source] ?? SourceStatistics()
+            statistics.sampleCount += 1
+            if let interval = sample.actualIntervalSeconds, interval >= 0 {
+                intervalTotal += interval
+                intervalCount += 1
+                maximumInterval = max(maximumInterval ?? interval, interval)
+                statistics.intervalTotal += interval
+                statistics.intervalCount += 1
+                statistics.maximumInterval = max(
+                    statistics.maximumInterval ?? interval,
+                    interval
+                )
+            }
+            sourceStatistics[sample.source] = statistics
         }
+    }
+
+    private func handleEventBufferOverflow() async {
+        guard acceptsSamples, phase == .collecting else { return }
+        await fail(overflowFailure())
+    }
+
+    private func overflowFailure() -> ResearchMotionSourceFailure {
+        .init(
+            code: "sample_event_buffer_overflow",
+            message: "The bounded sensor event buffer overflowed; capture was interrupted."
+        )
     }
 
     private func qualitySummary() -> SamplingQualitySummary {
@@ -274,7 +340,21 @@ public actor ResearchCaptureSessionCoordinator {
             averageActualIntervalSeconds: intervalCount > 0
                 ? intervalTotal / Double(intervalCount)
                 : nil,
-            maximumActualIntervalSeconds: maximumInterval
+            maximumActualIntervalSeconds: maximumInterval,
+            suspectedDroppedSampleCount: overflowTracker.droppedSampleCount,
+            sourceSummaries: sourceStatistics
+                .map { source, statistics in
+                    SensorStreamQualitySummary(
+                        source: source,
+                        sampleCount: statistics.sampleCount,
+                        requestedIntervalSeconds: requestedIntervalSeconds,
+                        averageActualIntervalSeconds: statistics.intervalCount > 0
+                            ? statistics.intervalTotal / Double(statistics.intervalCount)
+                            : nil,
+                        maximumActualIntervalSeconds: statistics.maximumInterval
+                    )
+                }
+                .sorted { $0.source.rawValue < $1.source.rawValue }
         )
     }
 
@@ -299,5 +379,35 @@ public actor ResearchCaptureSessionCoordinator {
         failure = nil
         captureCreated = false
         acceptsSamples = false
+        overflowTracker.reset()
+        sourceStatistics.removeAll(keepingCapacity: true)
+    }
+}
+
+private struct SourceStatistics: Sendable {
+    var sampleCount = 0
+    var intervalTotal = 0.0
+    var intervalCount = 0
+    var maximumInterval: TimeInterval?
+}
+
+private final class ResearchOverflowTracker: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storedDroppedSampleCount = 0
+
+    var droppedSampleCount: Int {
+        lock.withLock { storedDroppedSampleCount }
+    }
+
+    func record(droppedSampleCount: Int) {
+        lock.withLock {
+            storedDroppedSampleCount += max(1, droppedSampleCount)
+        }
+    }
+
+    func reset() {
+        lock.withLock {
+            storedDroppedSampleCount = 0
+        }
     }
 }

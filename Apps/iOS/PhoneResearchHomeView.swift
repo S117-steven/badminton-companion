@@ -23,7 +23,7 @@ struct PhoneResearchHomeView: View {
             NavigationStack {
                 List {
                     Section("研发状态") {
-                        LabeledContent("阶段", value: "1")
+                        LabeledContent("阶段", value: "2（代码基线）")
                         LabeledContent(
                             "数据结构",
                             value: "v\(ResearchCaptureManifest.currentSchemaVersion)"

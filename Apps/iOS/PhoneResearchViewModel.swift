@@ -1,6 +1,13 @@
 import BadmintonCore
 import Foundation
 
+struct PreparedResearchExport: Equatable {
+    let captureID: UUID
+    let fileURL: URL
+    let sampleCount: Int
+    let includesParticipant: Bool
+}
+
 @MainActor
 final class PhoneResearchViewModel: ObservableObject {
     @Published private(set) var participants: [ResearchParticipant] = []
@@ -8,10 +15,14 @@ final class PhoneResearchViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published var simulatorImportMessage: String?
+    @Published private(set) var preparedExport: PreparedResearchExport?
+    @Published private(set) var isPreparingExport = false
+    @Published private(set) var exportMessage: String?
 
     private let participantStore: ResearchParticipantFileStore
     private let captureStore: ResearchCaptureFileStore
     private let transferInbox: ResearchCaptureTransferInbox
+    private let exporter: ResearchCaptureNDJSONExporter
     private let simulatorOutgoingDirectory: URL
 
     init() {
@@ -30,6 +41,10 @@ final class PhoneResearchViewModel: ObservableObject {
         transferInbox = ResearchCaptureTransferInbox(
             inboxDirectory: researchRoot.appendingPathComponent("Inbox", isDirectory: true),
             destinationStore: captureStore
+        )
+        exporter = ResearchCaptureNDJSONExporter(
+            captureStore: captureStore,
+            participantStore: participantStore
         )
         simulatorOutgoingDirectory = researchRoot.appendingPathComponent(
             "SimulatorOutgoing",
@@ -86,6 +101,45 @@ final class PhoneResearchViewModel: ObservableObject {
                 invalidReason: status == .invalid ? "Simulator 研发复核标记" : nil
             )
             await reload()
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+
+    func loadChartSamples(captureID: UUID) async throws -> [ResearchMotionSample] {
+        try await captureStore.loadSamples(
+            captureID: captureID,
+            maximumCount: 4_500
+        )
+    }
+
+    func prepareExport(captureID: UUID) async {
+        isPreparingExport = true
+        exportMessage = nil
+        defer { isPreparingExport = false }
+
+        do {
+            let exportDirectory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("BadmintonResearchExports", isDirectory: true)
+            let destination = exportDirectory
+                .appendingPathComponent(captureID.uuidString.lowercased())
+                .appendingPathExtension("badminton-ndjson")
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+            let result = try await exporter.export(
+                captureID: captureID,
+                to: destination
+            )
+            preparedExport = PreparedResearchExport(
+                captureID: captureID,
+                fileURL: result.fileURL,
+                sampleCount: result.sampleCount,
+                includesParticipant: result.includesParticipant
+            )
+            exportMessage = result.includesParticipant
+                ? "已生成含测试者资料的完整 NDJSON。"
+                : "已生成 NDJSON，但该采集尚未匹配手机端测试者资料。"
         } catch {
             errorMessage = String(describing: error)
         }

@@ -19,6 +19,8 @@
 		01000000000000000000000A /* SimulatorResearchMotionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000010 /* SimulatorResearchMotionSource.swift */; };
 		01000000000000000000000B /* WatchCaptureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000011 /* WatchCaptureViewModel.swift */; };
 		01000000000000000000000C /* ResearchCaptureViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* ResearchCaptureViews.swift */; };
+		01000000000000000000000D /* CoreMotionResearchMotionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000013 /* CoreMotionResearchMotionSource.swift */; };
+		01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000014 /* ResearchCaptureChartsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +42,8 @@
 		020000000000000000000010 /* SimulatorResearchMotionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorResearchMotionSource.swift; sourceTree = "<group>"; };
 		020000000000000000000011 /* WatchCaptureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchCaptureViewModel.swift; sourceTree = "<group>"; };
 		020000000000000000000012 /* ResearchCaptureViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureViews.swift; sourceTree = "<group>"; };
+		020000000000000000000013 /* CoreMotionResearchMotionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotionResearchMotionSource.swift; sourceTree = "<group>"; };
+		020000000000000000000014 /* ResearchCaptureChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureChartsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +93,7 @@
 				02000000000000000000000D /* PhoneResearchViewModel.swift */,
 				02000000000000000000000E /* ResearchCaptureListView.swift */,
 				02000000000000000000000F /* ResearchParticipantViews.swift */,
+				020000000000000000000014 /* ResearchCaptureChartsView.swift */,
 			);
 			name = iOS;
 			path = Apps/iOS;
@@ -102,6 +107,7 @@
 				020000000000000000000010 /* SimulatorResearchMotionSource.swift */,
 				020000000000000000000011 /* WatchCaptureViewModel.swift */,
 				020000000000000000000012 /* ResearchCaptureViews.swift */,
+				020000000000000000000013 /* CoreMotionResearchMotionSource.swift */,
 			);
 			name = watchOS;
 			path = Apps/watchOS;
@@ -239,6 +245,7 @@
 				010000000000000000000007 /* PhoneResearchViewModel.swift in Sources */,
 				010000000000000000000008 /* ResearchCaptureListView.swift in Sources */,
 				010000000000000000000009 /* ResearchParticipantViews.swift in Sources */,
+				01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +258,7 @@
 				01000000000000000000000A /* SimulatorResearchMotionSource.swift in Sources */,
 				01000000000000000000000B /* WatchCaptureViewModel.swift in Sources */,
 				01000000000000000000000C /* ResearchCaptureViews.swift in Sources */,
+				01000000000000000000000D /* CoreMotionResearchMotionSource.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +326,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_NSMotionUsageDescription = "用于内部研发采集持拍手的加速度、角速度与设备运动数据。";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion.research;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -336,6 +345,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_NSMotionUsageDescription = "用于内部研发采集持拍手的加速度、角速度与设备运动数据。";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion.research;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

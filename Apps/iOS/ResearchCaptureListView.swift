@@ -105,6 +105,38 @@ private struct ResearchCaptureDetailView: View {
                     "最大间隔",
                     value: intervalText(capture.quality.maximumActualIntervalSeconds)
                 )
+                if let sourceSummaries = capture.quality.sourceSummaries {
+                    ForEach(sourceSummaries, id: \.source) { summary in
+                        LabeledContent(
+                            summary.source.title,
+                            value: "\(summary.sampleCount) 条 · \(intervalText(summary.averageActualIntervalSeconds))"
+                        )
+                    }
+                }
+            }
+
+            Section("检查与导出") {
+                NavigationLink("查看原始曲线") {
+                    ResearchCaptureChartsView(capture: capture, model: model)
+                }
+                Button("准备完整 NDJSON 导出") {
+                    Task { await model.prepareExport(captureID: capture.id) }
+                }
+                .disabled(model.isPreparingExport)
+                if model.isPreparingExport {
+                    ProgressView("正在生成")
+                }
+                if let export = model.preparedExport,
+                   export.captureID == capture.id {
+                    ShareLink(item: export.fileURL) {
+                        Label("共享导出文件", systemImage: "square.and.arrow.up")
+                    }
+                }
+                if let message = model.exportMessage {
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section("人工复核") {
@@ -135,3 +167,12 @@ private struct ResearchCaptureDetailView: View {
     }
 }
 
+private extension ResearchSensorSource {
+    var title: String {
+        switch self {
+        case .accelerometer: "加速度计"
+        case .gyroscope: "陀螺仪"
+        case .deviceMotion: "设备运动"
+        }
+    }
+}

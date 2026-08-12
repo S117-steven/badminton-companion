@@ -26,7 +26,7 @@ public struct SensorQuaternion: Codable, Equatable, Sendable {
     }
 }
 
-public enum ResearchSensorSource: String, Codable, Equatable, Sendable {
+public enum ResearchSensorSource: String, Codable, Equatable, Hashable, Sendable {
     case accelerometer
     case gyroscope
     case deviceMotion = "device_motion"
