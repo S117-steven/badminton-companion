@@ -25,6 +25,15 @@
 		010000000000000000000010 /* WatchResearchConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000016 /* WatchResearchConnectivityController.swift */; };
 		010000000000000000000011 /* ResearchCaptureMetadataEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000017 /* ResearchCaptureMetadataEditor.swift */; };
 		010000000000000000000012 /* ResearchBatchExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000018 /* ResearchBatchExportView.swift */; };
+		010000000000000000000013 /* BadmintonProductApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000019 /* BadmintonProductApp.swift */; };
+		010000000000000000000014 /* ProductPhoneHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001A /* ProductPhoneHomeView.swift */; };
+		010000000000000000000015 /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000004 /* BadmintonCore */; };
+		010000000000000000000016 /* BadmintonProductWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001B /* BadmintonProductWatchApp.swift */; };
+		010000000000000000000017 /* ProductWatchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001C /* ProductWatchRootView.swift */; };
+		010000000000000000000018 /* ProductWorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001D /* ProductWorkoutViewModel.swift */; };
+		010000000000000000000019 /* SimulatorWorkoutPlatformSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001E /* SimulatorWorkoutPlatformSession.swift */; };
+		01000000000000000000001A /* HealthKitWorkoutPlatformSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */; };
+		01000000000000000000001B /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000005 /* BadmintonCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +61,19 @@
 		020000000000000000000016 /* WatchResearchConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchResearchConnectivityController.swift; sourceTree = "<group>"; };
 		020000000000000000000017 /* ResearchCaptureMetadataEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureMetadataEditor.swift; sourceTree = "<group>"; };
 		020000000000000000000018 /* ResearchBatchExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchBatchExportView.swift; sourceTree = "<group>"; };
+		020000000000000000000019 /* BadmintonProductApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonProductApp.swift; sourceTree = "<group>"; };
+		02000000000000000000001A /* ProductPhoneHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhoneHomeView.swift; sourceTree = "<group>"; };
+		02000000000000000000001B /* BadmintonProductWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonProductWatchApp.swift; sourceTree = "<group>"; };
+		02000000000000000000001C /* ProductWatchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWatchRootView.swift; sourceTree = "<group>"; };
+		02000000000000000000001D /* ProductWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWorkoutViewModel.swift; sourceTree = "<group>"; };
+		02000000000000000000001E /* SimulatorWorkoutPlatformSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorWorkoutPlatformSession.swift; sourceTree = "<group>"; };
+		02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitWorkoutPlatformSession.swift; sourceTree = "<group>"; };
+		020000000000000000000020 /* Badminton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Badminton.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		020000000000000000000021 /* BadmintonWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BadmintonWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		020000000000000000000022 /* ProductiOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProductiOS.xcconfig; sourceTree = "<group>"; };
+		020000000000000000000023 /* ProductwatchOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProductwatchOS.xcconfig; sourceTree = "<group>"; };
+		020000000000000000000024 /* BadmintonWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BadmintonWatch.entitlements; sourceTree = "<group>"; };
+		020000000000000000000025 /* BadmintonWatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BadmintonWatch-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +90,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				010000000000000000000006 /* BadmintonCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		030000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000015 /* BadmintonCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		030000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01000000000000000000001B /* BadmintonCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +127,7 @@
 			children = (
 				040000000000000000000003 /* iOS */,
 				040000000000000000000004 /* watchOS */,
+				040000000000000000000007 /* Product */,
 			);
 			name = Apps;
 			sourceTree = "<group>";
@@ -133,6 +172,10 @@
 				020000000000000000000009 /* Release.xcconfig */,
 				02000000000000000000000A /* iOS.xcconfig */,
 				02000000000000000000000B /* watchOS.xcconfig */,
+				020000000000000000000022 /* ProductiOS.xcconfig */,
+				020000000000000000000023 /* ProductwatchOS.xcconfig */,
+				020000000000000000000024 /* BadmintonWatch.entitlements */,
+				020000000000000000000025 /* BadmintonWatch-Info.plist */,
 			);
 			path = Config;
 			sourceTree = SOURCE_ROOT;
@@ -142,8 +185,41 @@
 			children = (
 				020000000000000000000005 /* BadmintonResearch.app */,
 				020000000000000000000006 /* BadmintonResearchWatch.app */,
+				020000000000000000000020 /* Badminton.app */,
+				020000000000000000000021 /* BadmintonWatch.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		040000000000000000000007 /* Product */ = {
+			isa = PBXGroup;
+			children = (
+				040000000000000000000008 /* iOS */,
+				040000000000000000000009 /* watchOS */,
+			);
+			name = Product;
+			path = Apps/Product;
+			sourceTree = SOURCE_ROOT;
+		};
+		040000000000000000000008 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000019 /* BadmintonProductApp.swift */,
+				02000000000000000000001A /* ProductPhoneHomeView.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		040000000000000000000009 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				02000000000000000000001B /* BadmintonProductWatchApp.swift */,
+				02000000000000000000001C /* ProductWatchRootView.swift */,
+				02000000000000000000001D /* ProductWorkoutViewModel.swift */,
+				02000000000000000000001E /* SimulatorWorkoutPlatformSession.swift */,
+				02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */,
+			);
+			path = watchOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -189,6 +265,46 @@
 			productReference = 020000000000000000000006 /* BadmintonResearchWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		050000000000000000000003 /* BadmintonProductiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0000000000000000000004 /* Build configuration list for PBXNativeTarget "BadmintonProductiOS" */;
+			buildPhases = (
+				070000000000000000000003 /* Sources */,
+				030000000000000000000003 /* Frameworks */,
+				060000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BadmintonProductiOS;
+			packageProductDependencies = (
+				0F0000000000000000000004 /* BadmintonCore */,
+			);
+			productName = Badminton;
+			productReference = 020000000000000000000020 /* Badminton.app */;
+			productType = "com.apple.product-type.application";
+		};
+		050000000000000000000004 /* BadmintonProductWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0000000000000000000005 /* Build configuration list for PBXNativeTarget "BadmintonProductWatch" */;
+			buildPhases = (
+				070000000000000000000004 /* Sources */,
+				030000000000000000000004 /* Frameworks */,
+				060000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BadmintonProductWatch;
+			packageProductDependencies = (
+				0F0000000000000000000005 /* BadmintonCore */,
+			);
+			productName = BadmintonWatch;
+			productReference = 020000000000000000000021 /* BadmintonWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -204,6 +320,17 @@
 					};
 					050000000000000000000002 = {
 						CreatedOnToolsVersion = 27.0;
+					};
+					050000000000000000000003 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					050000000000000000000004 = {
+						CreatedOnToolsVersion = 27.0;
+						SystemCapabilities = {
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -226,6 +353,8 @@
 			targets = (
 				050000000000000000000001 /* BadmintonResearchiOS */,
 				050000000000000000000002 /* BadmintonResearchWatch */,
+				050000000000000000000003 /* BadmintonProductiOS */,
+				050000000000000000000004 /* BadmintonProductWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -239,6 +368,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		060000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		060000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		060000000000000000000004 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -275,6 +418,27 @@
 				01000000000000000000000C /* ResearchCaptureViews.swift in Sources */,
 				01000000000000000000000D /* CoreMotionResearchMotionSource.swift in Sources */,
 				010000000000000000000010 /* WatchResearchConnectivityController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		070000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000013 /* BadmintonProductApp.swift in Sources */,
+				010000000000000000000014 /* ProductPhoneHomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		070000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000016 /* BadmintonProductWatchApp.swift in Sources */,
+				010000000000000000000017 /* ProductWatchRootView.swift in Sources */,
+				010000000000000000000018 /* ProductWorkoutViewModel.swift in Sources */,
+				010000000000000000000019 /* SimulatorWorkoutPlatformSession.swift in Sources */,
+				01000000000000000000001A /* HealthKitWorkoutPlatformSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +537,94 @@
 			};
 			name = Release;
 		};
+		0A0000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000022 /* ProductiOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
+				PRODUCT_NAME = Badminton;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		0A0000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000022 /* ProductiOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
+				PRODUCT_NAME = Badminton;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		0A0000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000023 /* ProductwatchOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/BadmintonWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/BadmintonWatch-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "用于在运动中读取心率与能量数据。";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "用于将完成的羽毛球运动写入 Apple 健康与健身记录。";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = BadmintonWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		0A000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000023 /* ProductwatchOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/BadmintonWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/BadmintonWatch-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "用于在运动中读取心率与能量数据。";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "用于将完成的羽毛球运动写入 Apple 健康与健身记录。";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = BadmintonWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -403,6 +655,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		0B0000000000000000000004 /* Build configuration list for PBXNativeTarget "BadmintonProductiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0000000000000000000007 /* Debug */,
+				0A0000000000000000000008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0B0000000000000000000005 /* Build configuration list for PBXNativeTarget "BadmintonProductWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0000000000000000000009 /* Debug */,
+				0A000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -419,6 +689,16 @@
 			productName = BadmintonCore;
 		};
 		0F0000000000000000000003 /* BadmintonCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */;
+			productName = BadmintonCore;
+		};
+		0F0000000000000000000004 /* BadmintonCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */;
+			productName = BadmintonCore;
+		};
+		0F0000000000000000000005 /* BadmintonCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */;
 			productName = BadmintonCore;

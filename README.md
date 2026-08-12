@@ -2,18 +2,21 @@
 
 这是一个以 Apple Watch 为核心运动传感设备、以 iPhone 为长期数据管理终端的羽毛球个人表现分析项目。
 
-阶段 0 工程基线、阶段 1 Simulator 采集闭环和阶段 3 研发数据管理工具已经建立。阶段 2 的代码基线已包含真实设备 Core Motion 适配器、分传感器质量摘要、手机原始曲线、完整与批量 NDJSON 导出、人工复核与外部真实测速配对，以及可重试和幂等去重的 WatchConnectivity 双文件同步代码；下一步必须在真实 Apple Watch 上完成数据质量与通信验证。
+阶段 0 工程基线、阶段 1 Simulator 采集闭环和阶段 3 研发数据管理工具已经建立。阶段 2 已有 Core Motion 与可重试、幂等去重的 WatchConnectivity 代码基线。阶段 4 已建立独立正式版 targets、羽毛球运动状态机、增量检查点、HealthKit 适配器和 Simulator 交互基线。真机数据质量、后台通信和 HealthKit 仍未验证。
 
 ## 当前工程
 
-- `BadmintonMotion.xcodeproj`：iPhone 与 Apple Watch 内部研发版工程。
+- `BadmintonMotion.xcodeproj`：研发版和正式版共四个独立 targets。
 - `Apps/iOS`：iPhone 研发工具入口。
 - `Apps/watchOS`：Apple Watch 研发采集入口。
-- `Packages/BadmintonCore`：双端共享的研发数据模型、文件存储与核心测试。
+- `Apps/Product`：不编译研发入口的正式 iPhone/Watch 代码。
+- `Packages/BadmintonCore`：双端共享的数据模型、文件存储、服务与核心测试。
 - `Scripts/analyze_research_exports.py`：对手机导出执行流式完整性与时序摘要，不运行击球或测速算法。
 - `羽毛球运动分析产品文档`：产品规范、研发门禁和技术基线。
 
-Simulator 会生成确定性的流程测试数据，但每条采集都强制标记为 `simulator_synthetic`，不具备真机研究资格。当前代码不会生成自动击球分类或杀球速度；人工标签与原始数据保持独立，任何正式算法都必须等待真实数据和真机实验结论。
+正式基础运动的模块、状态、权限、恢复边界和真机验收清单见 `羽毛球运动分析产品文档/18_基础运动记录技术基线.md`。
+
+Simulator 采集和运动数据都强制标记为 `simulator_synthetic`，不写入 Apple 健康，也不具备真机研究资格。当前代码不会生成击球识别、杀球分类或杀球速度。
 
 ## 本地验证
 

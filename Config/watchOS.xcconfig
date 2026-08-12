@@ -1,3 +1,4 @@
 // Provisional engineering baseline. Compatibility testing must confirm this value.
 WATCHOS_DEPLOYMENT_TARGET = 10.0
 PRODUCT_BUNDLE_IDENTIFIER = com.example.badmintonmotion.research.watchkitapp
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) RESEARCH_BUILD
