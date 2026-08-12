@@ -185,4 +185,52 @@ final class ResearchCaptureFileStoreTests: XCTestCase {
         XCTAssertEqual(decimated.first?.sequenceNumber, 0)
         XCTAssertEqual(decimated.last?.sequenceNumber, 9)
     }
+
+    func testResearchMetadataKeepsSourceFactsAndNormalizesGroundTruth() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ResearchCaptureFileStore(baseDirectory: root)
+        let manifest = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .singleAction,
+            manualLabel: .smash,
+            provenance: .physicalSensor,
+            device: .init(
+                hardwareModel: "test-watch",
+                operatingSystemVersion: "test-os",
+                applicationVersion: "0.1.0",
+                applicationBuild: "1"
+            )
+        )
+        try await store.createCapture(manifest)
+        _ = try await store.finishCapture(
+            captureID: manifest.id,
+            endedAt: manifest.startedAt.addingTimeInterval(1),
+            quality: .init()
+        )
+
+        let updated = try await store.updateResearchMetadata(
+            captureID: manifest.id,
+            reviewStatus: .valid,
+            invalidReason: "ignored for valid",
+            notes: "  与高速摄影同步  ",
+            externalSpeedReference: .init(
+                measuredValue: 278.4,
+                unit: .kilometersPerHour,
+                sourceDescription: "  高速摄影  ",
+                status: .verified,
+                pairingIdentifier: "  video-frame-1842  "
+            )
+        )
+
+        XCTAssertEqual(updated.manualLabel, .smash)
+        XCTAssertEqual(updated.provenance, .physicalSensor)
+        XCTAssertEqual(updated.reviewStatus, .valid)
+        XCTAssertNil(updated.invalidReason)
+        XCTAssertEqual(updated.notes, "与高速摄影同步")
+        XCTAssertEqual(updated.externalSpeedReference?.sourceDescription, "高速摄影")
+        XCTAssertEqual(updated.externalSpeedReference?.pairingIdentifier, "video-frame-1842")
+        XCTAssertEqual(updated.syncState, .pendingTransfer)
+    }
 }

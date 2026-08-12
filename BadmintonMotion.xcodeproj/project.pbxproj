@@ -23,6 +23,8 @@
 		01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000014 /* ResearchCaptureChartsView.swift */; };
 		01000000000000000000000F /* PhoneResearchConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000015 /* PhoneResearchConnectivityController.swift */; };
 		010000000000000000000010 /* WatchResearchConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000016 /* WatchResearchConnectivityController.swift */; };
+		010000000000000000000011 /* ResearchCaptureMetadataEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000017 /* ResearchCaptureMetadataEditor.swift */; };
+		010000000000000000000012 /* ResearchBatchExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000018 /* ResearchBatchExportView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		020000000000000000000014 /* ResearchCaptureChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureChartsView.swift; sourceTree = "<group>"; };
 		020000000000000000000015 /* PhoneResearchConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneResearchConnectivityController.swift; sourceTree = "<group>"; };
 		020000000000000000000016 /* WatchResearchConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchResearchConnectivityController.swift; sourceTree = "<group>"; };
+		020000000000000000000017 /* ResearchCaptureMetadataEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureMetadataEditor.swift; sourceTree = "<group>"; };
+		020000000000000000000018 /* ResearchBatchExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchBatchExportView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,8 @@
 				02000000000000000000000F /* ResearchParticipantViews.swift */,
 				020000000000000000000014 /* ResearchCaptureChartsView.swift */,
 				020000000000000000000015 /* PhoneResearchConnectivityController.swift */,
+				020000000000000000000017 /* ResearchCaptureMetadataEditor.swift */,
+				020000000000000000000018 /* ResearchBatchExportView.swift */,
 			);
 			name = iOS;
 			path = Apps/iOS;
@@ -253,6 +259,8 @@
 				010000000000000000000009 /* ResearchParticipantViews.swift in Sources */,
 				01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */,
 				01000000000000000000000F /* PhoneResearchConnectivityController.swift in Sources */,
+				010000000000000000000011 /* ResearchCaptureMetadataEditor.swift in Sources */,
+				010000000000000000000012 /* ResearchBatchExportView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

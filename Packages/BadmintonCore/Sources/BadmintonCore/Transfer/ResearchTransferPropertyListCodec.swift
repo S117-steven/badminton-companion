@@ -3,12 +3,22 @@ import Foundation
 public enum ResearchTransferMessageType: String, Sendable {
     case captureFile = "capture_file"
     case acknowledgement
+    case activeParticipant = "active_participant"
+}
+
+public struct ResearchActiveParticipantSelection: Equatable, Sendable {
+    public let participantID: UUID
+
+    public init(participantID: UUID) {
+        self.participantID = participantID
+    }
 }
 
 public enum ResearchTransferPropertyListCodecError: Error, Equatable, Sendable {
     case unsupportedMessageType
     case missingOrInvalidField(String)
     case invalidCaptureID
+    case invalidParticipantID
     case invalidStoredFileKind
 }
 
@@ -86,6 +96,33 @@ public enum ResearchTransferPropertyListCodec {
             captureID: try decodeCaptureID(dictionary),
             schemaVersion: schemaVersion
         )
+    }
+
+    public static func encode(
+        activeParticipant selection: ResearchActiveParticipantSelection
+    ) -> [String: Any] {
+        [
+            "message_type": ResearchTransferMessageType.activeParticipant.rawValue,
+            "participant_id": selection.participantID.uuidString,
+        ]
+    }
+
+    public static func decodeActiveParticipant(
+        _ dictionary: [String: Any]
+    ) throws -> ResearchActiveParticipantSelection {
+        guard dictionary["message_type"] as? String
+            == ResearchTransferMessageType.activeParticipant.rawValue else {
+            throw ResearchTransferPropertyListCodecError.unsupportedMessageType
+        }
+        guard let value = dictionary["participant_id"] as? String else {
+            throw ResearchTransferPropertyListCodecError.missingOrInvalidField(
+                "participant_id"
+            )
+        }
+        guard let participantID = UUID(uuidString: value) else {
+            throw ResearchTransferPropertyListCodecError.invalidParticipantID
+        }
+        return .init(participantID: participantID)
     }
 
     private static func decodeCaptureID(

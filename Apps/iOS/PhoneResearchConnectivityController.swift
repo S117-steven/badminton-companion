@@ -14,6 +14,8 @@ final class PhoneResearchConnectivityController: NSObject, WCSessionDelegate, @u
     private let inbox: ResearchCaptureTransferInbox
     private let stagingDirectory: URL
     private let fileManager = FileManager.default
+    private let participantLock = NSLock()
+    private var pendingActiveParticipant: ResearchActiveParticipantSelection?
 
     private override init() {
         let documents = FileManager.default.urls(
@@ -42,11 +44,27 @@ final class PhoneResearchConnectivityController: NSObject, WCSessionDelegate, @u
         session.activate()
     }
 
+    func publishActiveParticipant(_ participantID: UUID) {
+        let selection = ResearchActiveParticipantSelection(participantID: participantID)
+        participantLock.lock()
+        pendingActiveParticipant = selection
+        participantLock.unlock()
+        guard WCSession.isSupported(),
+              WCSession.default.activationState == .activated else {
+            activate()
+            return
+        }
+        publishPendingParticipant(using: WCSession.default)
+    }
+
     func session(
         _ session: WCSession,
         activationDidCompleteWith activationState: WCSessionActivationState,
         error: Error?
-    ) {}
+    ) {
+        guard activationState == .activated, error == nil else { return }
+        publishPendingParticipant(using: session)
+    }
 
     func sessionDidBecomeInactive(_ session: WCSession) {}
 
@@ -105,6 +123,35 @@ final class PhoneResearchConnectivityController: NSObject, WCSessionDelegate, @u
                 // The staged file remains retriable from the watch because no
                 // acknowledgement is sent on any validation or import failure.
             }
+        }
+    }
+
+
+    private func publishPendingParticipant(using session: WCSession) {
+        participantLock.lock()
+        let selection = pendingActiveParticipant
+        participantLock.unlock()
+        guard let selection else { return }
+        do {
+            try session.updateApplicationContext(
+                ResearchTransferPropertyListCodec.encode(
+                    activeParticipant: selection
+                )
+            )
+            participantLock.lock()
+            let shouldPublishAgain: Bool
+            if pendingActiveParticipant == selection {
+                pendingActiveParticipant = nil
+                shouldPublishAgain = false
+            } else {
+                shouldPublishAgain = pendingActiveParticipant != nil
+            }
+            participantLock.unlock()
+            if shouldPublishAgain {
+                publishPendingParticipant(using: session)
+            }
+        } catch {
+            // The latest selection remains pending and is retried after activation.
         }
     }
 }

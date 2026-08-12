@@ -42,6 +42,25 @@ public struct ResearchCaptureExportResult: Equatable, Sendable {
     }
 }
 
+public struct ResearchCaptureBatchExportResult: Equatable, Sendable {
+    public let directoryURL: URL
+    public let files: [ResearchCaptureExportResult]
+
+    public init(directoryURL: URL, files: [ResearchCaptureExportResult]) {
+        self.directoryURL = directoryURL
+        self.files = files
+    }
+
+    public var totalSampleCount: Int {
+        files.reduce(0) { $0 + $1.sampleCount }
+    }
+}
+
+public enum ResearchCaptureExportError: Error, Equatable, Sendable {
+    case emptyBatch
+    case duplicateCaptureID(UUID)
+}
+
 /// Writes one script-friendly NDJSON file. The first line is a versioned header
 /// containing manifest and optional participant metadata; every following line
 /// is an unchanged raw `ResearchMotionSample` record.
@@ -126,6 +145,69 @@ public actor ResearchCaptureNDJSONExporter {
             includesParticipant: participant != nil,
             byteCount: Int64(values.fileSize ?? 0)
         )
+    }
+
+    public func exportBatch(
+        captureIDs: [UUID],
+        to destinationDirectory: URL,
+        exportedAt: Date = Date()
+    ) async throws -> ResearchCaptureBatchExportResult {
+        guard !captureIDs.isEmpty else {
+            throw ResearchCaptureExportError.emptyBatch
+        }
+        var seen = Set<UUID>()
+        for captureID in captureIDs where !seen.insert(captureID).inserted {
+            throw ResearchCaptureExportError.duplicateCaptureID(captureID)
+        }
+        guard !fileManager.fileExists(atPath: destinationDirectory.path) else {
+            throw CocoaError(.fileWriteFileExists)
+        }
+
+        let parentDirectory = destinationDirectory.deletingLastPathComponent()
+        try fileManager.createDirectory(
+            at: parentDirectory,
+            withIntermediateDirectories: true
+        )
+        let stagingDirectory = parentDirectory.appendingPathComponent(
+            ".\(destinationDirectory.lastPathComponent).\(UUID().uuidString).incoming",
+            isDirectory: true
+        )
+        do {
+            try fileManager.createDirectory(
+                at: stagingDirectory,
+                withIntermediateDirectories: false
+            )
+            var stagedResults: [ResearchCaptureExportResult] = []
+            for captureID in captureIDs {
+                stagedResults.append(
+                    try await export(
+                        captureID: captureID,
+                        to: stagingDirectory
+                            .appendingPathComponent(captureID.uuidString.lowercased())
+                            .appendingPathExtension("badminton-ndjson"),
+                        exportedAt: exportedAt
+                    )
+                )
+            }
+            try fileManager.moveItem(
+                at: stagingDirectory,
+                to: destinationDirectory
+            )
+            let files = stagedResults.map { result in
+                ResearchCaptureExportResult(
+                    fileURL: destinationDirectory.appendingPathComponent(
+                        result.fileURL.lastPathComponent
+                    ),
+                    sampleCount: result.sampleCount,
+                    includesParticipant: result.includesParticipant,
+                    byteCount: result.byteCount
+                )
+            }
+            return .init(directoryURL: destinationDirectory, files: files)
+        } catch {
+            try? fileManager.removeItem(at: stagingDirectory)
+            throw error
+        }
     }
 
     private func loadParticipantIfPresent(id: UUID) async throws -> ResearchParticipant? {

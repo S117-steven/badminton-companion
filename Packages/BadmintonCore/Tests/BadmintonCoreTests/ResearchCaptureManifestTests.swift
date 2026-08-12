@@ -66,4 +66,53 @@ final class ResearchCaptureManifestTests: XCTestCase {
         XCTAssertEqual(restored.schemaVersion, 2)
         XCTAssertNil(restored.quality.sourceSummaries)
     }
+
+    func testExternalGroundTruthRequiresPositivePairedSingleSmash() throws {
+        let reference = ExternalSpeedReference(
+            measuredValue: 278.4,
+            unit: .kilometersPerHour,
+            sourceDescription: "高速摄影",
+            status: .verified,
+            pairingIdentifier: "video-frame-1842"
+        )
+        let valid = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .singleAction,
+            manualLabel: .smash,
+            provenance: .physicalSensor,
+            device: device,
+            externalSpeedReference: reference
+        )
+        XCTAssertNoThrow(try valid.validate())
+
+        let ambiguousBatch = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .smashBatch,
+            manualLabel: .smash,
+            provenance: .physicalSensor,
+            device: device,
+            externalSpeedReference: reference
+        )
+        XCTAssertThrowsError(try ambiguousBatch.validate()) { error in
+            XCTAssertEqual(
+                error as? ResearchCaptureValidationError,
+                .externalSpeedRequiresSingleSmash
+            )
+        }
+
+        let synthetic = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .singleAction,
+            manualLabel: .smash,
+            provenance: .simulatorSynthetic,
+            device: device,
+            externalSpeedReference: reference
+        )
+        XCTAssertThrowsError(try synthetic.validate()) { error in
+            XCTAssertEqual(
+                error as? ResearchCaptureValidationError,
+                .externalSpeedRequiresPhysicalSensor
+            )
+        }
+    }
 }

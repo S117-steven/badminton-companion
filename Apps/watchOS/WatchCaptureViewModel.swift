@@ -38,6 +38,10 @@ final class WatchCaptureViewModel: ObservableObject {
 
     func start() async {
         do {
+            guard let participantID = Self.captureParticipantID else {
+                errorMessage = "请先在 iPhone 研发版选择当前测试者，并等待同步到手表。"
+                return
+            }
 #if targetEnvironment(simulator)
             let source = SimulatorResearchMotionSource()
 #else
@@ -49,7 +53,7 @@ final class WatchCaptureViewModel: ObservableObject {
             )
             self.coordinator = coordinator
             let manifest = ResearchCaptureManifest(
-                participantID: Self.localParticipantID,
+                participantID: participantID,
                 mode: mode,
                 manualLabel: manualLabel,
                 provenance: source.provenance,
@@ -142,7 +146,12 @@ final class WatchCaptureViewModel: ObservableObject {
             .appendingPathComponent("Captures", isDirectory: true)
     }
 
-    private static var localParticipantID: UUID {
+    private static var captureParticipantID: UUID? {
+        if let activeParticipantID = WatchResearchConnectivityController.shared
+            .activeParticipantID {
+            return activeParticipantID
+        }
+#if targetEnvironment(simulator)
         let key = "research.local-participant-id"
         if let value = UserDefaults.standard.string(forKey: key),
            let id = UUID(uuidString: value) {
@@ -151,6 +160,9 @@ final class WatchCaptureViewModel: ObservableObject {
         let id = UUID()
         UserDefaults.standard.set(id.uuidString, forKey: key)
         return id
+#else
+        return nil
+#endif
     }
 
     private static var deviceMetadata: ResearchDeviceMetadata {

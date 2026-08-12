@@ -60,12 +60,12 @@ public struct SamplingQualitySummary: Codable, Equatable, Sendable {
     }
 }
 
-public enum ResearchSpeedUnit: String, Codable, Equatable, Sendable {
+public enum ResearchSpeedUnit: String, Codable, CaseIterable, Equatable, Sendable {
     case kilometersPerHour = "km/h"
     case metersPerSecond = "m/s"
 }
 
-public enum ExternalMeasurementStatus: String, Codable, Equatable, Sendable {
+public enum ExternalMeasurementStatus: String, Codable, CaseIterable, Equatable, Sendable {
     case pendingReview = "pending_review"
     case verified
     case rejected
@@ -101,6 +101,11 @@ public enum ResearchCaptureValidationError: Error, Equatable, Sendable {
     case fixedLabelMismatch
     case endBeforeStart
     case negativeSampleCount
+    case invalidExternalSpeedValue
+    case missingExternalSpeedSource
+    case missingExternalSpeedPairingIdentifier
+    case externalSpeedRequiresSingleSmash
+    case externalSpeedRequiresPhysicalSensor
 }
 
 public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendable {
@@ -177,6 +182,28 @@ public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendabl
         }
         if sampleCount < 0 {
             throw ResearchCaptureValidationError.negativeSampleCount
+        }
+        if let reference = externalSpeedReference {
+            guard reference.measuredValue.isFinite,
+                  reference.measuredValue > 0 else {
+                throw ResearchCaptureValidationError.invalidExternalSpeedValue
+            }
+            guard !reference.sourceDescription.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            ).isEmpty else {
+                throw ResearchCaptureValidationError.missingExternalSpeedSource
+            }
+            guard !reference.pairingIdentifier.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            ).isEmpty else {
+                throw ResearchCaptureValidationError.missingExternalSpeedPairingIdentifier
+            }
+            guard mode == .singleAction, manualLabel == .smash else {
+                throw ResearchCaptureValidationError.externalSpeedRequiresSingleSmash
+            }
+            guard provenance == .physicalSensor else {
+                throw ResearchCaptureValidationError.externalSpeedRequiresPhysicalSensor
+            }
         }
     }
 }

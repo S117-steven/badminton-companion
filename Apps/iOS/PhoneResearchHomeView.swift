@@ -21,6 +21,13 @@ struct PhoneResearchHomeView: View {
             }
 
             NavigationStack {
+                ResearchBatchExportView(model: model)
+            }
+            .tabItem {
+                Label("导出", systemImage: "square.and.arrow.up.on.square")
+            }
+
+            NavigationStack {
                 List {
                     Section("研发状态") {
                         LabeledContent("阶段", value: "2（代码基线）")
@@ -30,6 +37,12 @@ struct PhoneResearchHomeView: View {
                         )
                         LabeledContent("本地采集", value: "\(model.captures.count)")
                         LabeledContent("测试者", value: "\(model.participants.count)")
+                        LabeledContent(
+                            "当前测试者",
+                            value: model.activeParticipantID.map {
+                                "\($0.uuidString.prefix(8))…"
+                            } ?? "未选择"
+                        )
                     }
 
                     Section("数据原则") {

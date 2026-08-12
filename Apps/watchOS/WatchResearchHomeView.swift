@@ -3,6 +3,8 @@ import SwiftUI
 
 struct WatchResearchHomeView: View {
     @State private var pendingCount = 0
+    @State private var activeParticipantID = WatchResearchConnectivityController
+        .shared.activeParticipantID
 
     var body: some View {
         NavigationStack {
@@ -16,6 +18,12 @@ struct WatchResearchHomeView: View {
                 }
 
                 Section("本地状态") {
+                    LabeledContent(
+                        "当前测试者",
+                        value: activeParticipantID.map {
+                            "\($0.uuidString.prefix(8))…"
+                        } ?? "未同步"
+                    )
                     LabeledContent("待同步采集", value: "\(pendingCount)")
                     Text("Simulator 数据仅用于流程验收")
                         .font(.caption2)
@@ -53,6 +61,10 @@ struct WatchResearchHomeView: View {
                 let manifests = (try? await store.listManifests()) ?? []
                 pendingCount = manifests.filter { $0.syncState != .acknowledged }.count
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .researchActiveParticipantChanged)) { _ in
+            activeParticipantID = WatchResearchConnectivityController.shared
+                .activeParticipantID
         }
     }
 }

@@ -90,4 +90,74 @@ final class ResearchCaptureNDJSONExporterTests: XCTestCase {
         XCTAssertEqual(header.participant, participant)
         XCTAssertEqual(restoredSamples, samples)
     }
+
+    func testBatchExportPublishesAllFilesOnlyAfterCompletion() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let captureStore = ResearchCaptureFileStore(
+            baseDirectory: root.appendingPathComponent("Captures", isDirectory: true)
+        )
+        let participantStore = ResearchParticipantFileStore(
+            baseDirectory: root.appendingPathComponent("Participants", isDirectory: true)
+        )
+        let participant = ResearchParticipant(
+            heightCentimeters: 175,
+            armSpanCentimeters: 177,
+            skillLevelCode: "research_v1_regular"
+        )
+        try await participantStore.save(participant)
+        var captureIDs: [UUID] = []
+        for offset in 0..<2 {
+            let manifest = ResearchCaptureManifest(
+                participantID: participant.id,
+                mode: .singleAction,
+                manualLabel: .smash,
+                provenance: .automatedTestFixture,
+                startedAt: Date(timeIntervalSince1970: 1_700_000_000 + Double(offset)),
+                device: .init(
+                    hardwareModel: "test-watch",
+                    operatingSystemVersion: "test-os",
+                    applicationVersion: "0.1.0",
+                    applicationBuild: "1"
+                )
+            )
+            try await captureStore.createCapture(manifest)
+            _ = try await captureStore.append(
+                [
+                    .init(
+                        sequenceNumber: 0,
+                        source: .accelerometer,
+                        monotonicTimestampSeconds: Double(offset),
+                        elapsedTimeSeconds: 0,
+                        accelerationMetersPerSecondSquared: .init(x: 1, y: 2, z: 3)
+                    ),
+                ],
+                to: manifest.id
+            )
+            _ = try await captureStore.finishCapture(
+                captureID: manifest.id,
+                endedAt: manifest.startedAt.addingTimeInterval(1),
+                quality: .init()
+            )
+            captureIDs.append(manifest.id)
+        }
+        let destination = root.appendingPathComponent("batch", isDirectory: true)
+
+        let result = try await ResearchCaptureNDJSONExporter(
+            captureStore: captureStore,
+            participantStore: participantStore
+        ).exportBatch(
+            captureIDs: captureIDs,
+            to: destination,
+            exportedAt: Date(timeIntervalSince1970: 1_700_000_100)
+        )
+
+        XCTAssertEqual(result.files.count, 2)
+        XCTAssertEqual(result.totalSampleCount, 2)
+        XCTAssertTrue(result.files.allSatisfy {
+            FileManager.default.fileExists(atPath: $0.fileURL.path)
+        })
+        XCTAssertTrue(result.files.allSatisfy(\.includesParticipant))
+    }
 }

@@ -6,6 +6,9 @@ extension Notification.Name {
     static let researchCaptureSyncChanged = Notification.Name(
         "badminton.research.capture-sync-changed"
     )
+    static let researchActiveParticipantChanged = Notification.Name(
+        "badminton.research.active-participant-changed"
+    )
 }
 
 final class WatchResearchConnectivityController: NSObject, WCSessionDelegate, @unchecked Sendable {
@@ -38,6 +41,12 @@ final class WatchResearchConnectivityController: NSObject, WCSessionDelegate, @u
         let session = WCSession.default
         session.delegate = self
         session.activate()
+    }
+
+    var activeParticipantID: UUID? {
+        UserDefaults.standard.string(
+            forKey: Self.activeParticipantKey
+        ).flatMap(UUID.init(uuidString:))
     }
 
     func queuePendingCaptures() {
@@ -89,7 +98,15 @@ final class WatchResearchConnectivityController: NSObject, WCSessionDelegate, @u
         error: Error?
     ) {
         guard activationState == .activated, error == nil else { return }
+        receiveActiveParticipant(from: session.receivedApplicationContext)
         queuePendingCaptures()
+    }
+
+    func session(
+        _ session: WCSession,
+        didReceiveApplicationContext applicationContext: [String: Any]
+    ) {
+        receiveActiveParticipant(from: applicationContext)
     }
 
     func session(
@@ -164,4 +181,21 @@ final class WatchResearchConnectivityController: NSObject, WCSessionDelegate, @u
             object: snapshot.captureID
         )
     }
+
+    private func receiveActiveParticipant(from dictionary: [String: Any]) {
+        guard let selection = try? ResearchTransferPropertyListCodec
+            .decodeActiveParticipant(dictionary) else {
+            return
+        }
+        UserDefaults.standard.set(
+            selection.participantID.uuidString,
+            forKey: Self.activeParticipantKey
+        )
+        NotificationCenter.default.post(
+            name: .researchActiveParticipantChanged,
+            object: selection.participantID
+        )
+    }
+
+    private static let activeParticipantKey = "research.active-participant-id"
 }

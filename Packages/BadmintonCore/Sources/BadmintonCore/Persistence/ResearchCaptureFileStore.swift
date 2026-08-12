@@ -153,6 +153,34 @@ public actor ResearchCaptureFileStore {
     }
 
     @discardableResult
+    public func updateResearchMetadata(
+        captureID: UUID,
+        reviewStatus: ResearchReviewStatus,
+        invalidReason: String?,
+        notes: String?,
+        externalSpeedReference: ExternalSpeedReference?
+    ) throws -> ResearchCaptureManifest {
+        var manifest = try loadManifest(captureID: captureID)
+        manifest.reviewStatus = reviewStatus
+        manifest.invalidReason = reviewStatus == .invalid
+            ? normalizedText(invalidReason)
+            : nil
+        manifest.notes = normalizedText(notes)
+        if var reference = externalSpeedReference {
+            reference.sourceDescription = reference.sourceDescription
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            reference.pairingIdentifier = reference.pairingIdentifier
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            manifest.externalSpeedReference = reference
+        } else {
+            manifest.externalSpeedReference = nil
+        }
+        try manifest.validate()
+        try writeManifest(manifest)
+        return manifest
+    }
+
+    @discardableResult
     public func updateSyncState(
         captureID: UUID,
         to newState: ResearchSyncState
@@ -339,7 +367,12 @@ public actor ResearchCaptureFileStore {
             let existing = try loadManifest(captureID: manifest.id)
             let existingSamples = samplesURL(for: manifest.id)
             let existingCount = try countNewlineTerminatedRecords(in: existingSamples)
-            if existing == manifest, existingCount == actualSampleCount {
+            if capturesDescribeSameSourceData(existing, manifest),
+               existingCount == actualSampleCount,
+               fileManager.contentsEqual(
+                   atPath: existingSamples.path,
+                   andPath: samplesFileURL.path
+               ) {
                 return .duplicate(manifest.id)
             }
             throw ResearchCaptureStoreError.captureConflict(manifest.id)
@@ -388,6 +421,35 @@ public actor ResearchCaptureFileStore {
         try encoder
             .encode(manifest)
             .write(to: manifestURL(for: manifest.id), options: [.atomic])
+    }
+
+    private func normalizedText(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+
+    /// Phone-side review metadata may legitimately change after import. It is
+    /// excluded from transport deduplication so an acknowledgement retry can
+    /// never overwrite or conflict with that local research work.
+    private func capturesDescribeSameSourceData(
+        _ lhs: ResearchCaptureManifest,
+        _ rhs: ResearchCaptureManifest
+    ) -> Bool {
+        lhs.schemaVersion == rhs.schemaVersion
+            && lhs.id == rhs.id
+            && lhs.participantID == rhs.participantID
+            && lhs.mode == rhs.mode
+            && lhs.manualLabel == rhs.manualLabel
+            && lhs.provenance == rhs.provenance
+            && lhs.startedAt == rhs.startedAt
+            && lhs.endedAt == rhs.endedAt
+            && lhs.state == rhs.state
+            && lhs.device == rhs.device
+            && lhs.sampleCount == rhs.sampleCount
+            && lhs.quality == rhs.quality
     }
 
     private func countNewlineTerminatedRecords(in url: URL) throws -> Int {

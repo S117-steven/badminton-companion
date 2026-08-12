@@ -82,6 +82,7 @@ final class ResearchCaptureTransferOutboxTests: XCTestCase {
             captureID: captureID,
             schemaVersion: 3
         )
+        let selection = ResearchActiveParticipantSelection(participantID: UUID())
 
         XCTAssertEqual(
             try ResearchTransferPropertyListCodec.decodeMetadata(
@@ -96,6 +97,14 @@ final class ResearchCaptureTransferOutboxTests: XCTestCase {
                 )
             ),
             acknowledgement
+        )
+        XCTAssertEqual(
+            try ResearchTransferPropertyListCodec.decodeActiveParticipant(
+                ResearchTransferPropertyListCodec.encode(
+                    activeParticipant: selection
+                )
+            ),
+            selection
         )
     }
 

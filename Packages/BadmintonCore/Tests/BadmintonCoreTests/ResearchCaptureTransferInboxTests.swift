@@ -57,10 +57,84 @@ final class ResearchCaptureTransferInboxTests: XCTestCase {
         )
         XCTAssertEqual(duplicate, .duplicate(manifest.id))
 
+        _ = try await incoming.updateResearchMetadata(
+            captureID: manifest.id,
+            reviewStatus: .valid,
+            invalidReason: nil,
+            notes: "手机端已复核",
+            externalSpeedReference: nil
+        )
+        _ = try await inbox.receive(
+            fileAt: manifestFile.url,
+            metadata: metadata(for: manifestFile, schemaVersion: completed.schemaVersion)
+        )
+        let duplicateAfterReview = try await inbox.receive(
+            fileAt: samplesFile.url,
+            metadata: metadata(for: samplesFile, schemaVersion: completed.schemaVersion)
+        )
+        XCTAssertEqual(duplicateAfterReview, .duplicate(manifest.id))
+
         let restored = try await incoming.loadManifest(captureID: manifest.id)
         let samples = try await incoming.loadSamples(captureID: manifest.id)
-        XCTAssertEqual(restored, completed)
+        XCTAssertEqual(restored.reviewStatus, .valid)
+        XCTAssertEqual(restored.notes, "手机端已复核")
         XCTAssertEqual(samples, [makeSample()])
+    }
+
+    func testSameCaptureIDAndSampleCountWithDifferentBytesIsAConflict() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let outgoing = ResearchCaptureFileStore(
+            baseDirectory: root.appendingPathComponent("outgoing")
+        )
+        let incoming = ResearchCaptureFileStore(
+            baseDirectory: root.appendingPathComponent("received")
+        )
+        let manifest = makeManifest()
+        try await outgoing.createCapture(manifest)
+        _ = try await outgoing.append([makeSample()], to: manifest.id)
+        let completed = try await outgoing.finishCapture(
+            captureID: manifest.id,
+            endedAt: manifest.startedAt.addingTimeInterval(1),
+            quality: .init()
+        )
+        let sourceFile = try await outgoing.storedFile(
+            captureID: manifest.id,
+            kind: .samples
+        )
+        let imported = try await incoming.importCapture(
+            manifest: completed,
+            samplesFileURL: sourceFile.url
+        )
+        XCTAssertEqual(imported, .imported(manifest.id))
+
+        let conflictingFile = root.appendingPathComponent("conflicting.ndjson")
+        let encoder = JSONEncoder()
+        var conflictingData = try encoder.encode(
+            ResearchMotionSample(
+                sequenceNumber: 0,
+                source: .accelerometer,
+                monotonicTimestampSeconds: 100,
+                elapsedTimeSeconds: 0,
+                accelerationMetersPerSecondSquared: .init(x: 9, y: 9, z: 9)
+            )
+        )
+        conflictingData.append(0x0A)
+        try conflictingData.write(to: conflictingFile)
+
+        do {
+            _ = try await incoming.importCapture(
+                manifest: completed,
+                samplesFileURL: conflictingFile
+            )
+            XCTFail("Different source bytes must never be accepted as a duplicate")
+        } catch {
+            XCTAssertEqual(
+                error as? ResearchCaptureStoreError,
+                .captureConflict(manifest.id)
+            )
+        }
     }
 
     func testInboxRejectsIncorrectTransferByteCount() async throws {

@@ -15,16 +15,29 @@ struct ResearchParticipantListView: View {
                 )
             } else {
                 ForEach(model.participants) { participant in
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(participant.id.uuidString.prefix(8))
-                            .font(.headline.monospaced())
-                        Text(
-                            "身高 \(participant.heightCentimeters, specifier: "%.1f") cm · 臂展 \(participant.armSpanCentimeters, specifier: "%.1f") cm"
-                        )
-                        .font(.subheadline)
-                        Text("\(participant.skillLevelCode) · 定义 v\(participant.skillLevelDefinitionVersion)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(participant.id.uuidString.prefix(8))
+                                .font(.headline.monospaced())
+                            Text(
+                                "身高 \(participant.heightCentimeters, specifier: "%.1f") cm · 臂展 \(participant.armSpanCentimeters, specifier: "%.1f") cm"
+                            )
+                            .font(.subheadline)
+                            Text("\(participant.skillLevelCode) · 定义 v\(participant.skillLevelDefinitionVersion)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if model.activeParticipantID == participant.id {
+                            Label("当前", systemImage: "checkmark.circle.fill")
+                                .labelStyle(.iconOnly)
+                                .foregroundStyle(.green)
+                        } else {
+                            Button("设为当前") {
+                                model.setActiveParticipant(participant.id)
+                            }
+                            .buttonStyle(.borderless)
+                        }
                     }
                 }
             }
@@ -103,4 +116,3 @@ private struct ResearchParticipantEditor: View {
         }
     }
 }
-

@@ -79,6 +79,7 @@ private struct ResearchCaptureDetailView: View {
     @ObservedObject var model: PhoneResearchViewModel
 
     var body: some View {
+        let capture = currentCapture
         List {
             Section("采集") {
                 LabeledContent("模式", value: capture.mode.title)
@@ -90,6 +91,9 @@ private struct ResearchCaptureDetailView: View {
                 LabeledContent("状态", value: capture.state.rawValue)
                 LabeledContent("来源", value: capture.provenance.rawValue)
                 LabeledContent("Schema", value: "v\(capture.schemaVersion)")
+                LabeledContent("测试者", value: participantSummary(for: capture))
+                LabeledContent("手表", value: capture.device.hardwareModel)
+                LabeledContent("系统", value: capture.device.operatingSystemVersion)
             }
 
             Section("采样质量") {
@@ -139,15 +143,25 @@ private struct ResearchCaptureDetailView: View {
                 }
             }
 
-            Section("人工复核") {
-                Button("标记有效") {
-                    Task { await model.updateReview(captureID: capture.id, status: .valid) }
+            Section("人工复核与配对") {
+                LabeledContent("复核状态", value: capture.reviewStatus.title)
+                if let reason = capture.invalidReason {
+                    LabeledContent("无效原因", value: reason)
                 }
-                Button("标记待检查") {
-                    Task { await model.updateReview(captureID: capture.id, status: .pending) }
+                if let notes = capture.notes {
+                    Text(notes)
                 }
-                Button("标记无效", role: .destructive) {
-                    Task { await model.updateReview(captureID: capture.id, status: .invalid) }
+                if let reference = capture.externalSpeedReference {
+                    LabeledContent(
+                        "外部真实速度",
+                        value: "\(reference.measuredValue.formatted()) \(reference.unit.rawValue)"
+                    )
+                    LabeledContent("测速来源", value: reference.sourceDescription)
+                    LabeledContent("配对标识", value: reference.pairingIdentifier)
+                    LabeledContent("测量状态", value: reference.status.title)
+                }
+                NavigationLink("编辑复核与研发元数据") {
+                    ResearchCaptureMetadataEditor(capture: capture, model: model)
                 }
             }
 
@@ -159,6 +173,19 @@ private struct ResearchCaptureDetailView: View {
             }
         }
         .navigationTitle("采集详情")
+    }
+
+    private var currentCapture: ResearchCaptureManifest {
+        model.captures.first { $0.id == capture.id } ?? capture
+    }
+
+    private func participantSummary(for capture: ResearchCaptureManifest) -> String {
+        guard let participant = model.participants.first(where: {
+            $0.id == capture.participantID
+        }) else {
+            return "\(capture.participantID.uuidString.prefix(8))…（资料未到手机）"
+        }
+        return "\(participant.heightCentimeters.formatted()) / \(participant.armSpanCentimeters.formatted()) cm · \(participant.skillLevelCode)"
     }
 
     private func intervalText(_ interval: TimeInterval?) -> String {
