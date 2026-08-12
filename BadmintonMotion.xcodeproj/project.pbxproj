@@ -21,6 +21,8 @@
 		01000000000000000000000C /* ResearchCaptureViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* ResearchCaptureViews.swift */; };
 		01000000000000000000000D /* CoreMotionResearchMotionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000013 /* CoreMotionResearchMotionSource.swift */; };
 		01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000014 /* ResearchCaptureChartsView.swift */; };
+		01000000000000000000000F /* PhoneResearchConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000015 /* PhoneResearchConnectivityController.swift */; };
+		010000000000000000000010 /* WatchResearchConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000016 /* WatchResearchConnectivityController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +46,8 @@
 		020000000000000000000012 /* ResearchCaptureViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureViews.swift; sourceTree = "<group>"; };
 		020000000000000000000013 /* CoreMotionResearchMotionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotionResearchMotionSource.swift; sourceTree = "<group>"; };
 		020000000000000000000014 /* ResearchCaptureChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureChartsView.swift; sourceTree = "<group>"; };
+		020000000000000000000015 /* PhoneResearchConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneResearchConnectivityController.swift; sourceTree = "<group>"; };
+		020000000000000000000016 /* WatchResearchConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchResearchConnectivityController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +98,7 @@
 				02000000000000000000000E /* ResearchCaptureListView.swift */,
 				02000000000000000000000F /* ResearchParticipantViews.swift */,
 				020000000000000000000014 /* ResearchCaptureChartsView.swift */,
+				020000000000000000000015 /* PhoneResearchConnectivityController.swift */,
 			);
 			name = iOS;
 			path = Apps/iOS;
@@ -108,6 +113,7 @@
 				020000000000000000000011 /* WatchCaptureViewModel.swift */,
 				020000000000000000000012 /* ResearchCaptureViews.swift */,
 				020000000000000000000013 /* CoreMotionResearchMotionSource.swift */,
+				020000000000000000000016 /* WatchResearchConnectivityController.swift */,
 			);
 			name = watchOS;
 			path = Apps/watchOS;
@@ -246,6 +252,7 @@
 				010000000000000000000008 /* ResearchCaptureListView.swift in Sources */,
 				010000000000000000000009 /* ResearchParticipantViews.swift in Sources */,
 				01000000000000000000000E /* ResearchCaptureChartsView.swift in Sources */,
+				01000000000000000000000F /* PhoneResearchConnectivityController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +266,7 @@
 				01000000000000000000000B /* WatchCaptureViewModel.swift in Sources */,
 				01000000000000000000000C /* ResearchCaptureViews.swift in Sources */,
 				01000000000000000000000D /* CoreMotionResearchMotionSource.swift in Sources */,
+				010000000000000000000010 /* WatchResearchConnectivityController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

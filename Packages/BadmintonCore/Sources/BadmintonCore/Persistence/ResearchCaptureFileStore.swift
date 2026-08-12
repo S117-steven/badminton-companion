@@ -7,6 +7,7 @@ public enum ResearchCaptureStoreError: Error, Equatable, Sendable {
     case captureConflict(UUID)
     case importedSampleCountMismatch(expected: Int, actual: Int)
     case invalidSampleLimit
+    case invalidSyncTransition(from: ResearchSyncState, to: ResearchSyncState)
 }
 
 public enum ResearchCaptureImportResult: Equatable, Sendable {
@@ -147,6 +148,23 @@ public actor ResearchCaptureFileStore {
         manifest.reviewStatus = status
         manifest.invalidReason = status == .invalid ? invalidReason : nil
         manifest.notes = notes
+        try writeManifest(manifest)
+        return manifest
+    }
+
+    @discardableResult
+    public func updateSyncState(
+        captureID: UUID,
+        to newState: ResearchSyncState
+    ) throws -> ResearchCaptureManifest {
+        var manifest = try loadManifest(captureID: captureID)
+        guard isAllowedSyncTransition(from: manifest.syncState, to: newState) else {
+            throw ResearchCaptureStoreError.invalidSyncTransition(
+                from: manifest.syncState,
+                to: newState
+            )
+        }
+        manifest.syncState = newState
         try writeManifest(manifest)
         return manifest
     }
@@ -391,5 +409,21 @@ public actor ResearchCaptureFileStore {
             count += 1
         }
         return count
+    }
+
+    private func isAllowedSyncTransition(
+        from current: ResearchSyncState,
+        to newState: ResearchSyncState
+    ) -> Bool {
+        if current == newState { return true }
+        return switch (current, newState) {
+        case (.pendingTransfer, .transferred),
+             (.transferred, .pendingTransfer),
+             (.pendingTransfer, .acknowledged),
+             (.transferred, .acknowledged):
+            true
+        default:
+            false
+        }
     }
 }

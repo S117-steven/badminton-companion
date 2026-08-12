@@ -154,11 +154,18 @@ private struct ResearchCaptureSessionView: View {
 
     private var reviewButtons: some View {
         VStack {
-            Button("有效") { Task { await model.mark(.valid) } }
-            Button("待检查") { Task { await model.mark(.pending) } }
-            Button("无效", role: .destructive) { Task { await model.mark(.invalid) } }
+            if !model.hasFinalizedReview {
+                Button("有效") { Task { await model.mark(.valid) } }
+                Button("待检查") { Task { await model.mark(.pending) } }
+                Button("无效", role: .destructive) { Task { await model.mark(.invalid) } }
+            }
             Text("当前：\(model.reviewStatus.shortTitle)")
                 .font(.caption2)
+            if model.hasFinalizedReview {
+                Text("已加入后台同步队列")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }

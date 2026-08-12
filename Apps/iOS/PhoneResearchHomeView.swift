@@ -51,6 +51,9 @@ struct PhoneResearchHomeView: View {
             }
         }
         .task { await model.reload() }
+        .onReceive(NotificationCenter.default.publisher(for: .researchCaptureImported)) { _ in
+            Task { await model.reload() }
+        }
     }
 }
 

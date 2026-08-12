@@ -35,8 +35,24 @@ struct WatchResearchHomeView: View {
                     .appendingPathComponent("Captures", isDirectory: true)
             )
             _ = try? await store.recoverUnfinishedCaptures()
+            WatchResearchConnectivityController.shared.queuePendingCaptures()
             let manifests = (try? await store.listManifests()) ?? []
             pendingCount = manifests.filter { $0.syncState != .acknowledged }.count
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .researchCaptureSyncChanged)) { _ in
+            Task {
+                let documents = FileManager.default.urls(
+                    for: .documentDirectory,
+                    in: .userDomainMask
+                ).first ?? FileManager.default.temporaryDirectory
+                let store = ResearchCaptureFileStore(
+                    baseDirectory: documents
+                        .appendingPathComponent("ResearchData", isDirectory: true)
+                        .appendingPathComponent("Captures", isDirectory: true)
+                )
+                let manifests = (try? await store.listManifests()) ?? []
+                pendingCount = manifests.filter { $0.syncState != .acknowledged }.count
+            }
         }
     }
 }

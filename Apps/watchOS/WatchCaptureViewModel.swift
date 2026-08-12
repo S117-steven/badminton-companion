@@ -14,6 +14,7 @@ final class WatchCaptureViewModel: ObservableObject {
     )
     @Published private(set) var elapsedSeconds: TimeInterval = 0
     @Published private(set) var reviewStatus = ResearchReviewStatus.pending
+    @Published private(set) var hasFinalizedReview = false
     @Published var errorMessage: String?
 
     let mode: ResearchCaptureMode
@@ -92,7 +93,7 @@ final class WatchCaptureViewModel: ObservableObject {
     }
 
     func mark(_ status: ResearchReviewStatus) async {
-        guard let captureID = snapshot.captureID else { return }
+        guard !hasFinalizedReview, let captureID = snapshot.captureID else { return }
         do {
             _ = try await store.updateReview(
                 captureID: captureID,
@@ -100,6 +101,8 @@ final class WatchCaptureViewModel: ObservableObject {
                 invalidReason: status == .invalid ? "手表研发采集者标记" : nil
             )
             reviewStatus = status
+            hasFinalizedReview = true
+            WatchResearchConnectivityController.shared.queueCapture(captureID)
         } catch {
             errorMessage = String(describing: error)
         }
