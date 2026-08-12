@@ -10,6 +10,7 @@
 - `Apps/iOS`：iPhone 研发工具入口。
 - `Apps/watchOS`：Apple Watch 研发采集入口。
 - `Packages/BadmintonCore`：双端共享的研发数据模型、文件存储与核心测试。
+- `Scripts/analyze_research_exports.py`：对手机导出执行流式完整性与时序摘要，不运行击球或测速算法。
 - `羽毛球运动分析产品文档`：产品规范、研发门禁和技术基线。
 
 Simulator 会生成确定性的流程测试数据，但每条采集都强制标记为 `simulator_synthetic`，不具备真机研究资格。当前代码不会生成自动击球分类或杀球速度；人工标签与原始数据保持独立，任何正式算法都必须等待真实数据和真机实验结论。
@@ -18,6 +19,12 @@ Simulator 会生成确定性的流程测试数据，但每条采集都强制标�
 
 ```sh
 ./Scripts/verify.sh
+```
+
+分析单个导出或整个批量目录：
+
+```sh
+python3 Scripts/analyze_research_exports.py path/to/export-or-directory
 ```
 
 部署到真实设备前，需要在 Xcode 中替换临时 Bundle Identifier、配置开发团队，并完成文档规定的真机验收。

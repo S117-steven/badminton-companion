@@ -12,6 +12,10 @@ Packages/*/.build/
 # macOS
 .DS_Store
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Local research exports and captured sensor data
 ResearchData/
 ResearchExports/

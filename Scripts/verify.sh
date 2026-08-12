@@ -7,6 +7,8 @@ verify_root=$(mktemp -d "${TMPDIR:-/tmp}/badminton-motion-verify.XXXXXX")
 
 cd "$project_root"
 
+python3 -m unittest discover -s Scripts/tests -v
+
 module_cache="$verify_root/module-cache"
 mkdir -p "$module_cache"
 
