@@ -2,49 +2,59 @@ import BadmintonCore
 import SwiftUI
 
 struct PhoneResearchHomeView: View {
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("当前研发阶段") {
-                    LabeledContent("阶段", value: "0 → 1")
-                    LabeledContent("数据结构", value: "v\(ResearchCaptureManifest.currentSchemaVersion)")
-                    Text("先建立真实传感器数据链路，不运行未验证的击球识别或测速算法。")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
+    @StateObject private var model = PhoneResearchViewModel()
 
-                Section("内部采集模式") {
-                    ForEach(ResearchCaptureMode.allCases, id: \.self) { mode in
-                        NavigationLink(mode.title) {
-                            ResearchModeDetailView(mode: mode)
+    var body: some View {
+        TabView {
+            NavigationStack {
+                ResearchCaptureListView(model: model)
+            }
+            .tabItem {
+                Label("采集", systemImage: "waveform.path.ecg")
+            }
+
+            NavigationStack {
+                ResearchParticipantListView(model: model)
+            }
+            .tabItem {
+                Label("测试者", systemImage: "person.crop.circle")
+            }
+
+            NavigationStack {
+                List {
+                    Section("研发状态") {
+                        LabeledContent("阶段", value: "1")
+                        LabeledContent(
+                            "数据结构",
+                            value: "v\(ResearchCaptureManifest.currentSchemaVersion)"
+                        )
+                        LabeledContent("本地采集", value: "\(model.captures.count)")
+                        LabeledContent("测试者", value: "\(model.participants.count)")
+                    }
+
+                    Section("数据原则") {
+                        Text("Simulator 数据始终标记为合成来源，不参与真机研究结论。")
+                        Text("当前不运行击球识别、杀球分类或测速算法。")
+                    }
+
+                    if let error = model.errorMessage {
+                        Section("最近错误") {
+                            Text(error)
+                                .foregroundStyle(.red)
                         }
                     }
                 }
+                .navigationTitle("研发状态")
             }
-            .navigationTitle("羽毛球研发")
+            .tabItem {
+                Label("状态", systemImage: "checklist")
+            }
         }
+        .task { await model.reload() }
     }
 }
 
-private struct ResearchModeDetailView: View {
-    let mode: ResearchCaptureMode
-
-    var body: some View {
-        List {
-            Section("用途") {
-                Text(mode.purpose)
-            }
-
-            Section {
-                Text("传感器适配器和真机权限将在下一步接入。当前工程不会创建空白样本或模拟数据。")
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .navigationTitle(mode.title)
-    }
-}
-
-private extension ResearchCaptureMode {
+extension ResearchCaptureMode {
     var title: String {
         switch self {
         case .singleAction: "单次击球采集"
@@ -54,14 +64,29 @@ private extension ResearchCaptureMode {
         case .interference: "空挥与干扰采集"
         }
     }
+}
 
-    var purpose: String {
+extension ManualActionLabel {
+    var title: String {
         switch self {
-        case .singleAction: "保存一次人工已知动作的完整原始时间序列。"
-        case .normalShotBatch: "连续保存一组人工标注为普通击球的原始数据。"
-        case .smashBatch: "连续保存一组人工标注为杀球的原始数据。"
-        case .freePlay: "记录自然打球环境，不生成未经人工确认的逐拍标签。"
-        case .interference: "采集空挥、跑动、捡球、甩手、擦汗等非击球动作。"
+        case .normalShot: "普通击球"
+        case .smash: "杀球"
+        case .airSwing: "空挥"
+        case .running: "跑动"
+        case .pickingUpShuttle: "捡球"
+        case .shakingArm: "甩手"
+        case .wipingSweat: "擦汗"
+        case .otherInterference: "其他干扰"
+        }
+    }
+}
+
+extension ResearchReviewStatus {
+    var title: String {
+        switch self {
+        case .pending: "待检查"
+        case .valid: "有效"
+        case .invalid: "无效"
         }
     }
 }

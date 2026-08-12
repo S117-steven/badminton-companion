@@ -14,6 +14,7 @@ final class ResearchCaptureManifestTests: XCTestCase {
             participantID: UUID(),
             mode: .freePlay,
             manualLabel: .smash,
+            provenance: .automatedTestFixture,
             device: device
         )
 
@@ -30,6 +31,7 @@ final class ResearchCaptureManifestTests: XCTestCase {
             participantID: UUID(),
             mode: .smashBatch,
             manualLabel: .normalShot,
+            provenance: .automatedTestFixture,
             device: device
         )
 

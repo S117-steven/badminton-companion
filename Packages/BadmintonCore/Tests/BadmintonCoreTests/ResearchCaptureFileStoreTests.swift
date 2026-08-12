@@ -13,6 +13,7 @@ final class ResearchCaptureFileStoreTests: XCTestCase {
             participantID: UUID(),
             mode: .singleAction,
             manualLabel: .smash,
+            provenance: .automatedTestFixture,
             startedAt: startedAt,
             device: ResearchDeviceMetadata(
                 hardwareModel: "test-watch",
@@ -71,6 +72,7 @@ final class ResearchCaptureFileStoreTests: XCTestCase {
             participantID: UUID(),
             mode: .normalShotBatch,
             manualLabel: .normalShot,
+            provenance: .automatedTestFixture,
             device: .init(
                 hardwareModel: "test-watch",
                 operatingSystemVersion: "test-os",
@@ -90,5 +92,50 @@ final class ResearchCaptureFileStoreTests: XCTestCase {
                 .captureAlreadyExists(manifest.id)
             )
         }
+    }
+
+    func testRecoveryMarksPersistedCollectingCaptureAsInterrupted() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = ResearchCaptureFileStore(baseDirectory: root)
+        let startedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let manifest = ResearchCaptureManifest(
+            participantID: UUID(),
+            mode: .freePlay,
+            manualLabel: nil,
+            provenance: .automatedTestFixture,
+            startedAt: startedAt,
+            device: .init(
+                hardwareModel: "test-watch",
+                operatingSystemVersion: "test-os",
+                applicationVersion: "0.1.0",
+                applicationBuild: "1"
+            )
+        )
+        try await store.createCapture(manifest)
+        _ = try await store.append(
+            [
+                .init(
+                    sequenceNumber: 0,
+                    source: .accelerometer,
+                    monotonicTimestampSeconds: 10,
+                    elapsedTimeSeconds: 0,
+                    accelerationMetersPerSecondSquared: .init(x: 1, y: 2, z: 3)
+                ),
+            ],
+            to: manifest.id
+        )
+
+        let recovered = try await store.recoverUnfinishedCaptures(
+            recoveredAt: startedAt.addingTimeInterval(5)
+        )
+
+        XCTAssertEqual(recovered.count, 1)
+        XCTAssertEqual(recovered[0].state, .interrupted)
+        XCTAssertEqual(recovered[0].syncState, .pendingTransfer)
+        XCTAssertEqual(recovered[0].sampleCount, 1)
+        XCTAssertEqual(recovered[0].endedAt, startedAt.addingTimeInterval(5))
     }
 }

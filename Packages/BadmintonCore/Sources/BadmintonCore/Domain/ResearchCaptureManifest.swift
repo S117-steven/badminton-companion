@@ -69,13 +69,14 @@ public enum ResearchCaptureValidationError: Error, Equatable, Sendable {
 }
 
 public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendable {
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
 
     public let schemaVersion: Int
     public let id: UUID
     public let participantID: UUID
     public let mode: ResearchCaptureMode
     public let manualLabel: ManualActionLabel?
+    public let provenance: ResearchDataProvenance
     public let startedAt: Date
     public var endedAt: Date?
     public var state: ResearchCaptureState
@@ -94,6 +95,7 @@ public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendabl
         participantID: UUID,
         mode: ResearchCaptureMode,
         manualLabel: ManualActionLabel?,
+        provenance: ResearchDataProvenance,
         startedAt: Date = Date(),
         endedAt: Date? = nil,
         state: ResearchCaptureState = .collecting,
@@ -111,6 +113,7 @@ public struct ResearchCaptureManifest: Codable, Equatable, Identifiable, Sendabl
         self.participantID = participantID
         self.mode = mode
         self.manualLabel = manualLabel
+        self.provenance = provenance
         self.startedAt = startedAt
         self.endedAt = endedAt
         self.state = state

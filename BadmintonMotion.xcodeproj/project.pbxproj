@@ -13,6 +13,12 @@
 		010000000000000000000004 /* BadmintonResearchWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000003 /* BadmintonResearchWatchApp.swift */; };
 		010000000000000000000005 /* WatchResearchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000004 /* WatchResearchHomeView.swift */; };
 		010000000000000000000006 /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000003 /* BadmintonCore */; };
+		010000000000000000000007 /* PhoneResearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000D /* PhoneResearchViewModel.swift */; };
+		010000000000000000000008 /* ResearchCaptureListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000E /* ResearchCaptureListView.swift */; };
+		010000000000000000000009 /* ResearchParticipantViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000000F /* ResearchParticipantViews.swift */; };
+		01000000000000000000000A /* SimulatorResearchMotionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000010 /* SimulatorResearchMotionSource.swift */; };
+		01000000000000000000000B /* WatchCaptureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000011 /* WatchCaptureViewModel.swift */; };
+		01000000000000000000000C /* ResearchCaptureViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000012 /* ResearchCaptureViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +34,12 @@
 		02000000000000000000000A /* iOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = iOS.xcconfig; sourceTree = "<group>"; };
 		02000000000000000000000B /* watchOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = watchOS.xcconfig; sourceTree = "<group>"; };
 		02000000000000000000000C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		02000000000000000000000D /* PhoneResearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneResearchViewModel.swift; sourceTree = "<group>"; };
+		02000000000000000000000E /* ResearchCaptureListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureListView.swift; sourceTree = "<group>"; };
+		02000000000000000000000F /* ResearchParticipantViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchParticipantViews.swift; sourceTree = "<group>"; };
+		020000000000000000000010 /* SimulatorResearchMotionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorResearchMotionSource.swift; sourceTree = "<group>"; };
+		020000000000000000000011 /* WatchCaptureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchCaptureViewModel.swift; sourceTree = "<group>"; };
+		020000000000000000000012 /* ResearchCaptureViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCaptureViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +86,9 @@
 			children = (
 				020000000000000000000001 /* BadmintonResearchApp.swift */,
 				020000000000000000000002 /* PhoneResearchHomeView.swift */,
+				02000000000000000000000D /* PhoneResearchViewModel.swift */,
+				02000000000000000000000E /* ResearchCaptureListView.swift */,
+				02000000000000000000000F /* ResearchParticipantViews.swift */,
 			);
 			name = iOS;
 			path = Apps/iOS;
@@ -84,6 +99,9 @@
 			children = (
 				020000000000000000000003 /* BadmintonResearchWatchApp.swift */,
 				020000000000000000000004 /* WatchResearchHomeView.swift */,
+				020000000000000000000010 /* SimulatorResearchMotionSource.swift */,
+				020000000000000000000011 /* WatchCaptureViewModel.swift */,
+				020000000000000000000012 /* ResearchCaptureViews.swift */,
 			);
 			name = watchOS;
 			path = Apps/watchOS;
@@ -218,6 +236,9 @@
 			files = (
 				010000000000000000000002 /* PhoneResearchHomeView.swift in Sources */,
 				010000000000000000000001 /* BadmintonResearchApp.swift in Sources */,
+				010000000000000000000007 /* PhoneResearchViewModel.swift in Sources */,
+				010000000000000000000008 /* ResearchCaptureListView.swift in Sources */,
+				010000000000000000000009 /* ResearchParticipantViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +248,9 @@
 			files = (
 				010000000000000000000005 /* WatchResearchHomeView.swift in Sources */,
 				010000000000000000000004 /* BadmintonResearchWatchApp.swift in Sources */,
+				01000000000000000000000A /* SimulatorResearchMotionSource.swift in Sources */,
+				01000000000000000000000B /* WatchCaptureViewModel.swift in Sources */,
+				01000000000000000000000C /* ResearchCaptureViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

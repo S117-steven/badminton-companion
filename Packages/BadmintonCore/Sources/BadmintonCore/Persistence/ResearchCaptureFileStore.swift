@@ -4,6 +4,37 @@ public enum ResearchCaptureStoreError: Error, Equatable, Sendable {
     case captureAlreadyExists(UUID)
     case captureNotFound(UUID)
     case captureIsNotCollecting(UUID)
+    case captureConflict(UUID)
+    case importedSampleCountMismatch(expected: Int, actual: Int)
+}
+
+public enum ResearchCaptureImportResult: Equatable, Sendable {
+    case imported(UUID)
+    case duplicate(UUID)
+}
+
+public enum ResearchCaptureStoredFileKind: String, Codable, Equatable, Sendable {
+    case manifest
+    case samples
+}
+
+public struct ResearchCaptureStoredFile: Equatable, Sendable {
+    public let captureID: UUID
+    public let kind: ResearchCaptureStoredFileKind
+    public let url: URL
+    public let byteCount: Int64
+
+    public init(
+        captureID: UUID,
+        kind: ResearchCaptureStoredFileKind,
+        url: URL,
+        byteCount: Int64
+    ) {
+        self.captureID = captureID
+        self.kind = kind
+        self.url = url
+        self.byteCount = byteCount
+    }
 }
 
 /// Append-oriented local storage suitable for watch-offline research capture.
@@ -160,6 +191,96 @@ public actor ResearchCaptureFileStore {
             .sorted { $0.startedAt > $1.startedAt }
     }
 
+    public func recoverUnfinishedCaptures(
+        recoveredAt: Date = Date()
+    ) throws -> [ResearchCaptureManifest] {
+        let unfinished = try listManifests().filter { $0.state == .collecting }
+        return try unfinished.map { manifest in
+            var recovered = manifest
+            recovered.endedAt = max(recoveredAt, manifest.startedAt)
+            recovered.state = .interrupted
+            recovered.syncState = .pendingTransfer
+            try writeManifest(recovered)
+            return recovered
+        }
+    }
+
+    public func storedFile(
+        captureID: UUID,
+        kind: ResearchCaptureStoredFileKind
+    ) throws -> ResearchCaptureStoredFile {
+        _ = try loadManifest(captureID: captureID)
+        let url: URL
+        switch kind {
+        case .manifest:
+            url = manifestURL(for: captureID)
+        case .samples:
+            url = samplesURL(for: captureID)
+        }
+        let values = try url.resourceValues(forKeys: [.fileSizeKey])
+        return ResearchCaptureStoredFile(
+            captureID: captureID,
+            kind: kind,
+            url: url,
+            byteCount: Int64(values.fileSize ?? 0)
+        )
+    }
+
+    public func importCapture(
+        manifest: ResearchCaptureManifest,
+        samplesFileURL: URL
+    ) throws -> ResearchCaptureImportResult {
+        try manifest.validate()
+        let actualSampleCount = try countNewlineTerminatedRecords(in: samplesFileURL)
+        guard actualSampleCount == manifest.sampleCount else {
+            throw ResearchCaptureStoreError.importedSampleCountMismatch(
+                expected: manifest.sampleCount,
+                actual: actualSampleCount
+            )
+        }
+
+        try fileManager.createDirectory(
+            at: baseDirectory,
+            withIntermediateDirectories: true
+        )
+        let destination = captureDirectory(for: manifest.id)
+        if fileManager.fileExists(atPath: destination.path) {
+            let existing = try loadManifest(captureID: manifest.id)
+            let existingSamples = samplesURL(for: manifest.id)
+            let existingCount = try countNewlineTerminatedRecords(in: existingSamples)
+            if existing == manifest, existingCount == actualSampleCount {
+                return .duplicate(manifest.id)
+            }
+            throw ResearchCaptureStoreError.captureConflict(manifest.id)
+        }
+
+        let stagingDirectory = baseDirectory.appendingPathComponent(
+            ".incoming-\(manifest.id.uuidString.lowercased())-\(UUID().uuidString.lowercased())",
+            isDirectory: true
+        )
+        do {
+            try fileManager.createDirectory(
+                at: stagingDirectory,
+                withIntermediateDirectories: false
+            )
+            try encoder
+                .encode(manifest)
+                .write(
+                    to: stagingDirectory.appendingPathComponent(Self.manifestFileName),
+                    options: [.atomic]
+                )
+            try fileManager.copyItem(
+                at: samplesFileURL,
+                to: stagingDirectory.appendingPathComponent(Self.samplesFileName)
+            )
+            try fileManager.moveItem(at: stagingDirectory, to: destination)
+            return .imported(manifest.id)
+        } catch {
+            try? fileManager.removeItem(at: stagingDirectory)
+            throw error
+        }
+    }
+
     private func captureDirectory(for captureID: UUID) -> URL {
         baseDirectory.appendingPathComponent(captureID.uuidString.lowercased(), isDirectory: true)
     }
@@ -176,5 +297,26 @@ public actor ResearchCaptureFileStore {
         try encoder
             .encode(manifest)
             .write(to: manifestURL(for: manifest.id), options: [.atomic])
+    }
+
+    private func countNewlineTerminatedRecords(in url: URL) throws -> Int {
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+
+        var count = 0
+        var lastByte: UInt8?
+        while true {
+            let data = try handle.read(upToCount: 64 * 1024) ?? Data()
+            if data.isEmpty { break }
+            count += data.reduce(into: 0) { partial, byte in
+                if byte == 0x0A { partial += 1 }
+            }
+            lastByte = data.last
+        }
+
+        if let lastByte, lastByte != 0x0A {
+            count += 1
+        }
+        return count
     }
 }

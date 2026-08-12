@@ -7,19 +7,53 @@ public struct ResearchParticipant: Codable, Equatable, Identifiable, Sendable {
 
     /// Versioned research metadata. Product-facing levels remain a product decision.
     public var skillLevelCode: String
+    public var skillLevelDefinitionVersion: Int
+    public let createdAt: Date
+    public var updatedAt: Date
 
     public init(
         id: UUID = UUID(),
         heightCentimeters: Double,
         armSpanCentimeters: Double,
-        skillLevelCode: String
+        skillLevelCode: String,
+        skillLevelDefinitionVersion: Int = 1,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
     ) {
         self.id = id
         self.heightCentimeters = heightCentimeters
         self.armSpanCentimeters = armSpanCentimeters
         self.skillLevelCode = skillLevelCode
+        self.skillLevelDefinitionVersion = skillLevelDefinitionVersion
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
+
+public enum ResearchParticipantValidationError: Error, Equatable, Sendable {
+    case invalidHeight
+    case invalidArmSpan
+    case missingSkillLevelCode
+    case invalidSkillLevelDefinitionVersion
+}
+
+public extension ResearchParticipant {
+    func validate() throws {
+        guard heightCentimeters.isFinite, heightCentimeters > 0 else {
+            throw ResearchParticipantValidationError.invalidHeight
+        }
+        guard armSpanCentimeters.isFinite, armSpanCentimeters > 0 else {
+            throw ResearchParticipantValidationError.invalidArmSpan
+        }
+        guard !skillLevelCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw ResearchParticipantValidationError.missingSkillLevelCode
+        }
+        guard skillLevelDefinitionVersion > 0 else {
+            throw ResearchParticipantValidationError.invalidSkillLevelDefinitionVersion
+        }
+    }
+}
+
 
 public struct ResearchDeviceMetadata: Codable, Equatable, Sendable {
     public var hardwareModel: String

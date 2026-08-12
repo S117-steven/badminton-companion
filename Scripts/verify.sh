@@ -20,6 +20,8 @@ swift test \
   --config-path "$verify_root/swiftpm-config" \
   --security-path "$verify_root/swiftpm-security"
 
+SWIFTPM_MODULECACHE_OVERRIDE="$module_cache" \
+CLANG_MODULE_CACHE_PATH="$module_cache" \
 xcodebuild \
   -quiet \
   -project BadmintonMotion.xcodeproj \
@@ -31,6 +33,8 @@ xcodebuild \
   CODE_SIGNING_ALLOWED=NO \
   build
 
+SWIFTPM_MODULECACHE_OVERRIDE="$module_cache" \
+CLANG_MODULE_CACHE_PATH="$module_cache" \
 xcodebuild \
   -quiet \
   -project BadmintonMotion.xcodeproj \
