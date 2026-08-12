@@ -34,6 +34,8 @@
 		010000000000000000000019 /* SimulatorWorkoutPlatformSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001E /* SimulatorWorkoutPlatformSession.swift */; };
 		01000000000000000000001A /* HealthKitWorkoutPlatformSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */; };
 		01000000000000000000001B /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000005 /* BadmintonCore */; };
+		01000000000000000000001C /* ProductWorkoutRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000026 /* ProductWorkoutRuntime.swift */; };
+		01000000000000000000001D /* ProductWatchApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000027 /* ProductWatchApplicationDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +76,8 @@
 		020000000000000000000023 /* ProductwatchOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProductwatchOS.xcconfig; sourceTree = "<group>"; };
 		020000000000000000000024 /* BadmintonWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BadmintonWatch.entitlements; sourceTree = "<group>"; };
 		020000000000000000000025 /* BadmintonWatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BadmintonWatch-Info.plist"; sourceTree = "<group>"; };
+		020000000000000000000026 /* ProductWorkoutRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWorkoutRuntime.swift; sourceTree = "<group>"; };
+		020000000000000000000027 /* ProductWatchApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWatchApplicationDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +222,8 @@
 				02000000000000000000001D /* ProductWorkoutViewModel.swift */,
 				02000000000000000000001E /* SimulatorWorkoutPlatformSession.swift */,
 				02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */,
+				020000000000000000000026 /* ProductWorkoutRuntime.swift */,
+				020000000000000000000027 /* ProductWatchApplicationDelegate.swift */,
 			);
 			path = watchOS;
 			sourceTree = "<group>";
@@ -439,6 +445,8 @@
 				010000000000000000000018 /* ProductWorkoutViewModel.swift in Sources */,
 				010000000000000000000019 /* SimulatorWorkoutPlatformSession.swift in Sources */,
 				01000000000000000000001A /* HealthKitWorkoutPlatformSession.swift in Sources */,
+				01000000000000000000001C /* ProductWorkoutRuntime.swift in Sources */,
+				01000000000000000000001D /* ProductWatchApplicationDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

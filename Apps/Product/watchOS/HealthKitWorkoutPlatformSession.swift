@@ -10,6 +10,9 @@ enum HealthKitWorkoutPlatformError: Error {
     case collectionStartFailed
     case collectionEndFailed
     case workoutSaveFailed
+    case recoveredSessionHasWrongActivity
+    case recoveredSessionHasInvalidState
+    case recoveredSessionMissingStartDate
 }
 
 actor HealthKitWorkoutPlatformSession: WorkoutPlatformSession {
@@ -56,6 +59,48 @@ actor HealthKitWorkoutPlatformSession: WorkoutPlatformSession {
         return authorizationState
     }
 
+    func recoverActive(
+        onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
+    ) async throws -> WorkoutPlatformRecoveryResult? {
+        guard session == nil else {
+            throw HealthKitWorkoutPlatformError.sessionAlreadyExists
+        }
+        guard let recoveredSession = try await recoverSession() else { return nil }
+        let recoveredBuilder = recoveredSession.associatedWorkoutBuilder()
+        bind(
+            session: recoveredSession,
+            builder: recoveredBuilder,
+            onEvent: onEvent
+        )
+
+        guard recoveredSession.workoutConfiguration.activityType == .badminton else {
+            await discardCurrentSession()
+            throw HealthKitWorkoutPlatformError.recoveredSessionHasWrongActivity
+        }
+        let activeState: WorkoutPlatformActiveState
+        switch recoveredSession.state {
+        case .running:
+            activeState = .running
+        case .paused:
+            activeState = .paused
+        default:
+            await discardCurrentSession()
+            throw HealthKitWorkoutPlatformError.recoveredSessionHasInvalidState
+        }
+        guard let startedAt = recoveredSession.startDate ?? recoveredBuilder.startDate else {
+            await discardCurrentSession()
+            throw HealthKitWorkoutPlatformError.recoveredSessionMissingStartDate
+        }
+        authorizationState = .authorized
+        let recoveredAt = Date()
+        return .init(
+            startedAt: startedAt,
+            recoveredAt: recoveredAt,
+            activeDurationSeconds: recoveredBuilder.elapsedTime(at: recoveredAt),
+            activeState: activeState
+        )
+    }
+
     func start(
         at date: Date,
         onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
@@ -75,27 +120,7 @@ actor HealthKitWorkoutPlatformSession: WorkoutPlatformSession {
             configuration: configuration
         )
         let builder = session.associatedWorkoutBuilder()
-        builder.dataSource = HKLiveWorkoutDataSource(
-            healthStore: healthStore,
-            workoutConfiguration: configuration
-        )
-        let sessionDelegate = HealthKitSessionDelegateProxy(
-            onStopped: { [weak self] in
-                Task { await self?.handleStopped() }
-            },
-            onFailure: { [weak self] error in
-                Task { await self?.handleFailure(error) }
-            }
-        )
-        let builderDelegate = HealthKitBuilderDelegateProxy(onMetrics: onEvent)
-        session.delegate = sessionDelegate
-        builder.delegate = builderDelegate
-
-        self.session = session
-        self.builder = builder
-        self.sessionDelegate = sessionDelegate
-        self.builderDelegate = builderDelegate
-        eventHandler = onEvent
+        bind(session: session, builder: builder, onEvent: onEvent)
 
         session.startActivity(with: date)
         do {
@@ -147,6 +172,45 @@ actor HealthKitWorkoutPlatformSession: WorkoutPlatformSession {
                 }
             }
         }
+    }
+
+    private func recoverSession() async throws -> HKWorkoutSession? {
+        try await withCheckedThrowingContinuation { continuation in
+            healthStore.recoverActiveWorkoutSession { session, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: session)
+                }
+            }
+        }
+    }
+
+    private func bind(
+        session: HKWorkoutSession,
+        builder: HKLiveWorkoutBuilder,
+        onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
+    ) {
+        builder.dataSource = HKLiveWorkoutDataSource(
+            healthStore: healthStore,
+            workoutConfiguration: session.workoutConfiguration
+        )
+        let sessionDelegate = HealthKitSessionDelegateProxy(
+            onStopped: { [weak self] in
+                Task { await self?.handleStopped() }
+            },
+            onFailure: { [weak self] error in
+                Task { await self?.handleFailure(error) }
+            }
+        )
+        let builderDelegate = HealthKitBuilderDelegateProxy(onMetrics: onEvent)
+        session.delegate = sessionDelegate
+        builder.delegate = builderDelegate
+        self.session = session
+        self.builder = builder
+        self.sessionDelegate = sessionDelegate
+        self.builderDelegate = builderDelegate
+        eventHandler = onEvent
     }
 
     private func stop(_ session: HKWorkoutSession, at date: Date) async throws {

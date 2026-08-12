@@ -17,6 +17,13 @@ struct ProductWatchRootView: View {
             }
         }
         .task { await model.prepare() }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: .productActiveWorkoutRecoveryRequested
+            )
+        ) { _ in
+            Task { await model.prepare() }
+        }
     }
 
     private var startPage: some View {
@@ -40,12 +47,16 @@ struct ProductWatchRootView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled([
+                    BadmintonWorkoutSessionPhase.recovering,
                     BadmintonWorkoutSessionPhase.requestingAuthorization,
                     .starting,
                 ].contains(model.snapshot.phase))
 
-                if [.requestingAuthorization, .starting].contains(model.snapshot.phase) {
-                    ProgressView("正在准备")
+                if [.recovering, .requestingAuthorization, .starting]
+                    .contains(model.snapshot.phase) {
+                    ProgressView(
+                        model.snapshot.phase == .recovering ? "正在恢复运动" : "正在准备"
+                    )
                 }
                 if let recovered = model.recoveredWorkout {
                     Text("已保护上次异常中断运动：\(duration(recovered.accumulatedActiveDurationSeconds))")

@@ -12,27 +12,34 @@ final class ProductWorkoutViewModel: ObservableObject {
     @Published private(set) var recoveredWorkout: BadmintonWorkoutRecord?
     @Published var errorMessage: String?
 
+    private let runtime: ProductWorkoutRuntime
     private let store: BadmintonWorkoutFileStore
     private let coordinator: BadmintonWorkoutSessionCoordinator
     private var monitorTask: Task<Void, Never>?
     private var lastCheckpointAt: Date?
 
-    init() {
-        let store = BadmintonWorkoutFileStore(baseDirectory: Self.workoutDirectory)
-        self.store = store
-#if targetEnvironment(simulator)
-        let platform: any WorkoutPlatformSession = SimulatorWorkoutPlatformSession()
-#else
-        let platform: any WorkoutPlatformSession = HealthKitWorkoutPlatformSession()
-#endif
-        coordinator = BadmintonWorkoutSessionCoordinator(store: store, platform: platform)
+    init(runtime: ProductWorkoutRuntime = .shared) {
+        self.runtime = runtime
+        store = runtime.store
+        coordinator = runtime.coordinator
     }
 
     func prepare() async {
         do {
+            if let recoveryTask = runtime.activeRecoveryTask(),
+               let recoveredSnapshot = try await recoveryTask.value {
+                snapshot = recoveredSnapshot
+                recoveredWorkout = nil
+                errorMessage = nil
+                startMonitoring()
+                return
+            }
             recoveredWorkout = try await store.recoverUnfinished().first
+            snapshot = await coordinator.currentSnapshot()
         } catch {
-            errorMessage = "恢复未完成运动失败：\(error.localizedDescription)"
+            recoveredWorkout = try? await store.recoverUnfinished().first
+            snapshot = await coordinator.currentSnapshot()
+            errorMessage = "恢复 HealthKit 运动失败，已保护本地检查点：\(error.localizedDescription)"
         }
     }
 
@@ -120,15 +127,5 @@ final class ProductWorkoutViewModel: ObservableObject {
                 }
             }
         }
-    }
-
-    private static var workoutDirectory: URL {
-        let documents = FileManager.default.urls(
-            for: .documentDirectory,
-            in: .userDomainMask
-        ).first ?? FileManager.default.temporaryDirectory
-        return documents
-            .appendingPathComponent("ProductData", isDirectory: true)
-            .appendingPathComponent("Workouts", isDirectory: true)
     }
 }

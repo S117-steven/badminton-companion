@@ -2,6 +2,7 @@ import Foundation
 
 public enum BadmintonWorkoutSessionPhase: String, Equatable, Sendable {
     case idle
+    case recovering
     case requestingAuthorization = "requesting_authorization"
     case starting
     case running
@@ -38,6 +39,7 @@ public enum BadmintonWorkoutSessionError: Error, Equatable, Sendable {
     case sessionNotPaused
     case sessionCannotEnd
     case invalidTransitionDate
+    case invalidPlatformRecovery
     case authorizationNotGranted(WorkoutHealthAuthorizationState)
 }
 
@@ -59,9 +61,84 @@ public actor BadmintonWorkoutSessionCoordinator {
         self.platform = platform
     }
 
+    /// Reattaches the one HealthKit session that can survive an application
+    /// crash to its local record. This must be triggered from WatchKit's
+    /// active-workout recovery callback on the platform side.
+    @discardableResult
+    public func recoverActiveSession() async throws -> BadmintonWorkoutSessionSnapshot? {
+        guard phase == .idle else {
+            throw BadmintonWorkoutSessionError.sessionAlreadyActive
+        }
+        phase = .recovering
+        failure = nil
+        prepareEventStream()
+
+        do {
+            guard let recovery = try await platform.recoverActive(
+                onEvent: { [continuation = eventContinuation] event in
+                    continuation?.yield(event)
+                }
+            ) else {
+                phase = .idle
+                finishEventStream()
+                return nil
+            }
+            guard platform.provenance == .healthKitDevice,
+                  recovery.startedAt <= recovery.recoveredAt,
+                  recovery.activeDurationSeconds.isFinite,
+                  recovery.activeDurationSeconds >= 0,
+                  recovery.activeDurationSeconds <= recovery.recoveredAt
+                    .timeIntervalSince(recovery.startedAt) + 5 else {
+                throw BadmintonWorkoutSessionError.invalidPlatformRecovery
+            }
+
+            let unfinished = try await store.unfinished()
+            let matchingRecord = unfinished
+                .filter { $0.provenance == .healthKitDevice }
+                .min {
+                    abs($0.startedAt.timeIntervalSince(recovery.startedAt))
+                        < abs($1.startedAt.timeIntervalSince(recovery.startedAt))
+                }
+                .flatMap { candidate in
+                    abs(candidate.startedAt.timeIntervalSince(recovery.startedAt)) <= 10
+                        ? candidate
+                        : nil
+                }
+
+            var restored = matchingRecord ?? BadmintonWorkoutRecord(
+                provenance: .healthKitDevice,
+                startedAt: recovery.startedAt,
+                healthAuthorizationState: .authorized
+            )
+            try restored.restoreFromRecoveredPlatform(
+                at: recovery.recoveredAt,
+                activeDurationSeconds: recovery.activeDurationSeconds,
+                activeState: recovery.activeState
+            )
+            if matchingRecord == nil {
+                try await store.create(restored)
+            } else {
+                try await store.save(restored)
+            }
+            record = restored
+            _ = try await store.recoverUnfinished(
+                at: recovery.recoveredAt,
+                excluding: [restored.id]
+            )
+            phase = recovery.activeState == .running ? .running : .paused
+            return snapshot(at: recovery.recoveredAt)
+        } catch {
+            await fail(
+                .init(code: "workout_recovery_failed", message: String(describing: error)),
+                at: Date()
+            )
+            throw error
+        }
+    }
+
     @discardableResult
     public func start(at date: Date = Date()) async throws -> BadmintonWorkoutSessionSnapshot {
-        guard ![.requestingAuthorization, .starting, .running, .pausing, .paused,
+        guard ![.recovering, .requestingAuthorization, .starting, .running, .pausing, .paused,
                 .resuming, .ending].contains(phase) else {
             throw BadmintonWorkoutSessionError.sessionAlreadyActive
         }
@@ -242,7 +319,7 @@ public actor BadmintonWorkoutSessionCoordinator {
     }
 
     public func reset() async throws {
-        guard ![.requestingAuthorization, .starting, .running, .pausing, .paused,
+        guard ![.recovering, .requestingAuthorization, .starting, .running, .pausing, .paused,
                 .resuming, .ending].contains(phase) else {
             throw BadmintonWorkoutSessionError.sessionAlreadyActive
         }
@@ -275,7 +352,8 @@ public actor BadmintonWorkoutSessionCoordinator {
     private func receive(_ event: WorkoutPlatformEvent) async {
         switch event {
         case .metrics(let update):
-            guard [.running, .pausing, .paused, .resuming, .ending].contains(phase),
+            guard [.recovering, .running, .pausing, .paused, .resuming, .ending]
+                .contains(phase),
                   var record else { return }
             record.healthMetrics.merge(update)
             record.lastMetricAt = max(update.recordedAt, record.lastMetricAt ?? record.startedAt)

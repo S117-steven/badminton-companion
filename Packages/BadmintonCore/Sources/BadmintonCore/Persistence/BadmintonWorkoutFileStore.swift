@@ -76,10 +76,17 @@ public actor BadmintonWorkoutFileStore {
         .sorted { $0.startedAt > $1.startedAt }
     }
 
-    public func recoverUnfinished(at recoveredAt: Date = Date()) throws -> [BadmintonWorkoutRecord] {
-        let unfinished = try list().filter {
+    public func unfinished() throws -> [BadmintonWorkoutRecord] {
+        try list().filter {
             [.starting, .active, .paused].contains($0.lifecycleState)
         }
+    }
+
+    public func recoverUnfinished(
+        at recoveredAt: Date = Date(),
+        excluding excludedIDs: Set<UUID> = []
+    ) throws -> [BadmintonWorkoutRecord] {
+        let unfinished = try unfinished().filter { !excludedIDs.contains($0.id) }
         return try unfinished.map { existing in
             var recovered = existing
             // Only time that was checkpointed before termination is known to

@@ -17,6 +17,12 @@ actor SimulatorWorkoutPlatformSession: WorkoutPlatformSession {
         .simulated
     }
 
+    func recoverActive(
+        onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
+    ) async throws -> WorkoutPlatformRecoveryResult? {
+        nil
+    }
+
     func start(
         at date: Date,
         onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void

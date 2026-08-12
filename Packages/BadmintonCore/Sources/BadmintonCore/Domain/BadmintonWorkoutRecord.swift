@@ -180,6 +180,29 @@ public struct BadmintonWorkoutRecord: Codable, Equatable, Identifiable, Sendable
         updatedAt = date
     }
 
+    public mutating func restoreFromRecoveredPlatform(
+        at recoveredAt: Date,
+        activeDurationSeconds: TimeInterval,
+        activeState: WorkoutPlatformActiveState
+    ) throws {
+        guard recoveredAt >= startedAt else {
+            throw BadmintonWorkoutValidationError.invalidUpdateTimestamp
+        }
+        guard activeDurationSeconds.isFinite, activeDurationSeconds >= 0 else {
+            throw BadmintonWorkoutValidationError.invalidActiveDuration
+        }
+        endedAt = nil
+        accumulatedActiveDurationSeconds = activeDurationSeconds
+        lifecycleState = activeState == .running ? .active : .paused
+        lastResumedAt = activeState == .running ? recoveredAt : nil
+        healthAuthorizationState = .authorized
+        healthWriteState = .collecting
+        failureCode = nil
+        failureMessage = nil
+        updatedAt = recoveredAt
+        try validate()
+    }
+
     public mutating func markCompleted(
         at date: Date,
         result: WorkoutPlatformEndResult

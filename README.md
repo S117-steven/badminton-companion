@@ -2,7 +2,7 @@
 
 这是一个以 Apple Watch 为核心运动传感设备、以 iPhone 为长期数据管理终端的羽毛球个人表现分析项目。
 
-阶段 0 工程基线、阶段 1 Simulator 采集闭环和阶段 3 研发数据管理工具已经建立。阶段 2 已有 Core Motion 与可重试、幂等去重的 WatchConnectivity 代码基线。阶段 4 已建立独立正式版 targets、羽毛球运动状态机、增量检查点、HealthKit 适配器和 Simulator 交互基线。真机数据质量、后台通信和 HealthKit 仍未验证。
+阶段 0 工程基线、阶段 1 Simulator 采集闭环和阶段 3 研发数据管理工具已经建立。阶段 2 已有 Core Motion 与可重试、幂等去重的 WatchConnectivity 代码基线。阶段 4 已建立独立正式版 targets、羽毛球运动状态机、增量检查点、HealthKit 适配器、崩溃后平台会话重绑定和 Simulator 交互基线。真机数据质量、后台通信和 HealthKit 仍未验证。
 
 ## 当前工程
 

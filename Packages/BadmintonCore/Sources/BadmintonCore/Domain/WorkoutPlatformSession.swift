@@ -53,10 +53,40 @@ public struct WorkoutPlatformEndResult: Equatable, Sendable {
     }
 }
 
+public enum WorkoutPlatformActiveState: String, Equatable, Sendable {
+    case running
+    case paused
+}
+
+/// Facts reported by a platform session that survived an application crash.
+/// The platform-provided elapsed time is authoritative because it preserves
+/// pause intervals that may not have reached the last local checkpoint.
+public struct WorkoutPlatformRecoveryResult: Equatable, Sendable {
+    public let startedAt: Date
+    public let recoveredAt: Date
+    public let activeDurationSeconds: TimeInterval
+    public let activeState: WorkoutPlatformActiveState
+
+    public init(
+        startedAt: Date,
+        recoveredAt: Date,
+        activeDurationSeconds: TimeInterval,
+        activeState: WorkoutPlatformActiveState
+    ) {
+        self.startedAt = startedAt
+        self.recoveredAt = recoveredAt
+        self.activeDurationSeconds = activeDurationSeconds
+        self.activeState = activeState
+    }
+}
+
 public protocol WorkoutPlatformSession: Sendable {
     var provenance: WorkoutDataProvenance { get }
 
     func requestAuthorization() async -> WorkoutHealthAuthorizationState
+    func recoverActive(
+        onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
+    ) async throws -> WorkoutPlatformRecoveryResult?
     func start(
         at date: Date,
         onEvent: @escaping @Sendable (WorkoutPlatformEvent) -> Void
