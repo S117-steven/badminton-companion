@@ -1,0 +1,379 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		010000000000000000000001 /* BadmintonResearchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000001 /* BadmintonResearchApp.swift */; };
+		010000000000000000000002 /* PhoneResearchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000002 /* PhoneResearchHomeView.swift */; };
+		010000000000000000000003 /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000002 /* BadmintonCore */; };
+		010000000000000000000004 /* BadmintonResearchWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000003 /* BadmintonResearchWatchApp.swift */; };
+		010000000000000000000005 /* WatchResearchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000004 /* WatchResearchHomeView.swift */; };
+		010000000000000000000006 /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000003 /* BadmintonCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		020000000000000000000001 /* BadmintonResearchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonResearchApp.swift; sourceTree = "<group>"; };
+		020000000000000000000002 /* PhoneResearchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneResearchHomeView.swift; sourceTree = "<group>"; };
+		020000000000000000000003 /* BadmintonResearchWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonResearchWatchApp.swift; sourceTree = "<group>"; };
+		020000000000000000000004 /* WatchResearchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchResearchHomeView.swift; sourceTree = "<group>"; };
+		020000000000000000000005 /* BadmintonResearch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BadmintonResearch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		020000000000000000000006 /* BadmintonResearchWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BadmintonResearchWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		020000000000000000000007 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		020000000000000000000008 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		020000000000000000000009 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		02000000000000000000000A /* iOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = iOS.xcconfig; sourceTree = "<group>"; };
+		02000000000000000000000B /* watchOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = watchOS.xcconfig; sourceTree = "<group>"; };
+		02000000000000000000000C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		030000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000003 /* BadmintonCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		030000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000006 /* BadmintonCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		040000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				02000000000000000000000C /* README.md */,
+				040000000000000000000002 /* Apps */,
+				040000000000000000000005 /* Config */,
+				040000000000000000000006 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		040000000000000000000002 /* Apps */ = {
+			isa = PBXGroup;
+			children = (
+				040000000000000000000003 /* iOS */,
+				040000000000000000000004 /* watchOS */,
+			);
+			name = Apps;
+			sourceTree = "<group>";
+		};
+		040000000000000000000003 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000001 /* BadmintonResearchApp.swift */,
+				020000000000000000000002 /* PhoneResearchHomeView.swift */,
+			);
+			name = iOS;
+			path = Apps/iOS;
+			sourceTree = SOURCE_ROOT;
+		};
+		040000000000000000000004 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000003 /* BadmintonResearchWatchApp.swift */,
+				020000000000000000000004 /* WatchResearchHomeView.swift */,
+			);
+			name = watchOS;
+			path = Apps/watchOS;
+			sourceTree = SOURCE_ROOT;
+		};
+		040000000000000000000005 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000007 /* Base.xcconfig */,
+				020000000000000000000008 /* Debug.xcconfig */,
+				020000000000000000000009 /* Release.xcconfig */,
+				02000000000000000000000A /* iOS.xcconfig */,
+				02000000000000000000000B /* watchOS.xcconfig */,
+			);
+			path = Config;
+			sourceTree = SOURCE_ROOT;
+		};
+		040000000000000000000006 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				020000000000000000000005 /* BadmintonResearch.app */,
+				020000000000000000000006 /* BadmintonResearchWatch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		050000000000000000000001 /* BadmintonResearchiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0000000000000000000002 /* Build configuration list for PBXNativeTarget "BadmintonResearchiOS" */;
+			buildPhases = (
+				070000000000000000000001 /* Sources */,
+				030000000000000000000001 /* Frameworks */,
+				060000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BadmintonResearchiOS;
+			packageProductDependencies = (
+				0F0000000000000000000002 /* BadmintonCore */,
+			);
+			productName = BadmintonResearch;
+			productReference = 020000000000000000000005 /* BadmintonResearch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		050000000000000000000002 /* BadmintonResearchWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0000000000000000000003 /* Build configuration list for PBXNativeTarget "BadmintonResearchWatch" */;
+			buildPhases = (
+				070000000000000000000002 /* Sources */,
+				030000000000000000000002 /* Frameworks */,
+				060000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BadmintonResearchWatch;
+			packageProductDependencies = (
+				0F0000000000000000000003 /* BadmintonCore */,
+			);
+			productName = BadmintonResearchWatch;
+			productReference = 020000000000000000000006 /* BadmintonResearchWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		080000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					050000000000000000000001 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					050000000000000000000002 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+				};
+			};
+			buildConfigurationList = 0B0000000000000000000001 /* Build configuration list for PBXProject "BadmintonMotion" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = zh-Hans;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				"zh-Hans",
+				en,
+			);
+			mainGroup = 040000000000000000000001;
+			packageReferences = (
+				0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */,
+			);
+			productRefGroup = 040000000000000000000006 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				050000000000000000000001 /* BadmintonResearchiOS */,
+				050000000000000000000002 /* BadmintonResearchWatch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		060000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		060000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		070000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000002 /* PhoneResearchHomeView.swift in Sources */,
+				010000000000000000000001 /* BadmintonResearchApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		070000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				010000000000000000000005 /* WatchResearchHomeView.swift in Sources */,
+				010000000000000000000004 /* BadmintonResearchWatchApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0A0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000008 /* Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		0A0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 020000000000000000000009 /* Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		0A0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 02000000000000000000000A /* iOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				PRODUCT_NAME = BadmintonResearch;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		0A0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 02000000000000000000000A /* iOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				PRODUCT_NAME = BadmintonResearch;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		0A0000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 02000000000000000000000B /* watchOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion.research;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = BadmintonResearchWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		0A0000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 02000000000000000000000B /* watchOS.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "羽毛球研发";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.badmintonmotion.research;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = BadmintonResearchWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0B0000000000000000000001 /* Build configuration list for PBXProject "BadmintonMotion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0000000000000000000001 /* Debug */,
+				0A0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0B0000000000000000000002 /* Build configuration list for PBXNativeTarget "BadmintonResearchiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0000000000000000000003 /* Debug */,
+				0A0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0B0000000000000000000003 /* Build configuration list for PBXNativeTarget "BadmintonResearchWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0000000000000000000005 /* Debug */,
+				0A0000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/BadmintonCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0F0000000000000000000002 /* BadmintonCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */;
+			productName = BadmintonCore;
+		};
+		0F0000000000000000000003 /* BadmintonCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0F0000000000000000000001 /* XCLocalSwiftPackageReference "Packages/BadmintonCore" */;
+			productName = BadmintonCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 080000000000000000000001 /* Project object */;
+}

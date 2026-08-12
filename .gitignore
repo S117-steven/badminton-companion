@@ -1,0 +1,18 @@
+# Xcode user state and local build products
+DerivedData/
+.build/
+build/
+*.xcuserstate
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+Packages/*/.build/
+
+# macOS
+.DS_Store
+
+# Local research exports and captured sensor data
+ResearchData/
+ResearchExports/
+*.researchcapture
