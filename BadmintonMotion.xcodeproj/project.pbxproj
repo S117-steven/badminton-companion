@@ -36,7 +36,37 @@
 		01000000000000000000001B /* BadmintonCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0000000000000000000005 /* BadmintonCore */; };
 		01000000000000000000001C /* ProductWorkoutRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000026 /* ProductWorkoutRuntime.swift */; };
 		01000000000000000000001D /* ProductWatchApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000027 /* ProductWatchApplicationDelegate.swift */; };
+		01000000000000000000001E /* ProductPhoneRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000028 /* ProductPhoneRuntime.swift */; };
+		01000000000000000000001F /* ProductPhoneConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020000000000000000000029 /* ProductPhoneConnectivityController.swift */; };
+		010000000000000000000020 /* ProductPhoneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002A /* ProductPhoneViewModel.swift */; };
+		010000000000000000000021 /* ProductPhoneSettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002B /* ProductPhoneSettingsViews.swift */; };
+		010000000000000000000022 /* ProductWorkoutConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002C /* ProductWorkoutConnectivityController.swift */; };
+		010000000000000000000023 /* BadmintonWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 020000000000000000000021 /* BadmintonWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0C0000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 080000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 050000000000000000000004;
+			remoteInfo = BadmintonProductWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		090000000000000000000001 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				010000000000000000000023 /* BadmintonWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		020000000000000000000001 /* BadmintonResearchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonResearchApp.swift; sourceTree = "<group>"; };
@@ -78,6 +108,11 @@
 		020000000000000000000025 /* BadmintonWatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BadmintonWatch-Info.plist"; sourceTree = "<group>"; };
 		020000000000000000000026 /* ProductWorkoutRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWorkoutRuntime.swift; sourceTree = "<group>"; };
 		020000000000000000000027 /* ProductWatchApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWatchApplicationDelegate.swift; sourceTree = "<group>"; };
+		020000000000000000000028 /* ProductPhoneRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhoneRuntime.swift; sourceTree = "<group>"; };
+		020000000000000000000029 /* ProductPhoneConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhoneConnectivityController.swift; sourceTree = "<group>"; };
+		02000000000000000000002A /* ProductPhoneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhoneViewModel.swift; sourceTree = "<group>"; };
+		02000000000000000000002B /* ProductPhoneSettingsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhoneSettingsViews.swift; sourceTree = "<group>"; };
+		02000000000000000000002C /* ProductWorkoutConnectivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductWorkoutConnectivityController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +245,10 @@
 			children = (
 				020000000000000000000019 /* BadmintonProductApp.swift */,
 				02000000000000000000001A /* ProductPhoneHomeView.swift */,
+				020000000000000000000028 /* ProductPhoneRuntime.swift */,
+				020000000000000000000029 /* ProductPhoneConnectivityController.swift */,
+				02000000000000000000002A /* ProductPhoneViewModel.swift */,
+				02000000000000000000002B /* ProductPhoneSettingsViews.swift */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -224,6 +263,7 @@
 				02000000000000000000001F /* HealthKitWorkoutPlatformSession.swift */,
 				020000000000000000000026 /* ProductWorkoutRuntime.swift */,
 				020000000000000000000027 /* ProductWatchApplicationDelegate.swift */,
+				02000000000000000000002C /* ProductWorkoutConnectivityController.swift */,
 			);
 			path = watchOS;
 			sourceTree = "<group>";
@@ -278,10 +318,12 @@
 				070000000000000000000003 /* Sources */,
 				030000000000000000000003 /* Frameworks */,
 				060000000000000000000003 /* Resources */,
+				090000000000000000000001 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0D0000000000000000000001 /* PBXTargetDependency */,
 			);
 			name = BadmintonProductiOS;
 			packageProductDependencies = (
@@ -433,6 +475,10 @@
 			files = (
 				010000000000000000000013 /* BadmintonProductApp.swift in Sources */,
 				010000000000000000000014 /* ProductPhoneHomeView.swift in Sources */,
+				01000000000000000000001E /* ProductPhoneRuntime.swift in Sources */,
+				01000000000000000000001F /* ProductPhoneConnectivityController.swift in Sources */,
+				010000000000000000000020 /* ProductPhoneViewModel.swift in Sources */,
+				010000000000000000000021 /* ProductPhoneSettingsViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,10 +493,19 @@
 				01000000000000000000001A /* HealthKitWorkoutPlatformSession.swift in Sources */,
 				01000000000000000000001C /* ProductWorkoutRuntime.swift in Sources */,
 				01000000000000000000001D /* ProductWatchApplicationDelegate.swift in Sources */,
+				010000000000000000000022 /* ProductWorkoutConnectivityController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0D0000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 050000000000000000000004 /* BadmintonProductWatch */;
+			targetProxy = 0C0000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0A0000000000000000000001 /* Debug */ = {
