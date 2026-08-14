@@ -32,10 +32,12 @@ final class ProductWorkoutViewModel: ObservableObject {
                 recoveredWorkout = nil
                 errorMessage = nil
                 startMonitoring()
+                ProductWorkoutConnectivityController.shared.queuePendingWorkouts()
                 return
             }
             recoveredWorkout = try await store.recoverUnfinished().first
             snapshot = await coordinator.currentSnapshot()
+            ProductWorkoutConnectivityController.shared.queuePendingWorkouts()
         } catch {
             recoveredWorkout = try? await store.recoverUnfinished().first
             snapshot = await coordinator.currentSnapshot()
@@ -86,9 +88,11 @@ final class ProductWorkoutViewModel: ObservableObject {
             monitorTask?.cancel()
             monitorTask = nil
             errorMessage = nil
+            queueCurrentTerminalWorkout()
         } catch {
             snapshot = await coordinator.currentSnapshot()
             errorMessage = "运动已保留为中断记录，但健康运动保存失败：\(error.localizedDescription)"
+            queueCurrentTerminalWorkout()
         }
     }
 
@@ -127,5 +131,14 @@ final class ProductWorkoutViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    private func queueCurrentTerminalWorkout() {
+        guard let record = snapshot.record,
+              record.lifecycleState == .completed
+                || record.lifecycleState == .interrupted else {
+            return
+        }
+        ProductWorkoutConnectivityController.shared.queueWorkout(record.id)
     }
 }

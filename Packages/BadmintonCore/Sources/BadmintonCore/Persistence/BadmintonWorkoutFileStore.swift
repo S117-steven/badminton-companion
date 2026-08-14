@@ -3,6 +3,24 @@ import Foundation
 public enum BadmintonWorkoutStoreError: Error, Equatable, Sendable {
     case workoutAlreadyExists(UUID)
     case workoutNotFound(UUID)
+    case workoutConflict(UUID)
+}
+
+public enum BadmintonWorkoutImportResult: Equatable, Sendable {
+    case imported(UUID)
+    case duplicate(UUID)
+}
+
+public struct BadmintonWorkoutStoredFile: Equatable, Sendable {
+    public let workoutID: UUID
+    public let url: URL
+    public let byteCount: Int64
+
+    public init(workoutID: UUID, url: URL, byteCount: Int64) {
+        self.workoutID = workoutID
+        self.url = url
+        self.byteCount = byteCount
+    }
 }
 
 /// Atomic, one-file-per-workout storage. Metric updates are intentionally
@@ -57,6 +75,35 @@ public actor BadmintonWorkoutFileStore {
             throw BadmintonWorkoutStoreError.workoutNotFound(id)
         }
         return try decoder.decode(BadmintonWorkoutRecord.self, from: Data(contentsOf: url))
+    }
+
+    public func importRecord(
+        _ record: BadmintonWorkoutRecord
+    ) throws -> BadmintonWorkoutImportResult {
+        try record.validate()
+        let directory = workoutDirectory(for: record.id)
+        if fileManager.fileExists(atPath: directory.path) {
+            let existing = try load(id: record.id)
+            guard existing == record else {
+                throw BadmintonWorkoutStoreError.workoutConflict(record.id)
+            }
+            return .duplicate(record.id)
+        }
+        try create(record)
+        return .imported(record.id)
+    }
+
+    public func storedFile(id: UUID) throws -> BadmintonWorkoutStoredFile {
+        let url = recordURL(for: id)
+        guard fileManager.fileExists(atPath: url.path) else {
+            throw BadmintonWorkoutStoreError.workoutNotFound(id)
+        }
+        let values = try url.resourceValues(forKeys: [.fileSizeKey])
+        return .init(
+            workoutID: id,
+            url: url,
+            byteCount: Int64(values.fileSize ?? 0)
+        )
     }
 
     public func list() throws -> [BadmintonWorkoutRecord] {
