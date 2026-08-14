@@ -2,6 +2,7 @@ import Foundation
 
 public enum BadmintonWorkoutTransferMessageType: String, Sendable {
     case workoutFile = "workout_file"
+    case workoutImmediate = "workout_immediate"
     case acknowledgement = "workout_acknowledgement"
 }
 
@@ -34,6 +35,42 @@ public enum BadmintonWorkoutTransferPropertyListCodec {
             workoutID: try decodeWorkoutID(dictionary),
             schemaVersion: try decodeSchemaVersion(dictionary),
             byteCount: try decodeByteCount(dictionary)
+        )
+    }
+
+    public static func encodeImmediateWorkout(
+        metadata: BadmintonWorkoutTransferMetadata,
+        payload: Data
+    ) -> [String: Any] {
+        [
+            "message_type": BadmintonWorkoutTransferMessageType
+                .workoutImmediate.rawValue,
+            "workout_id": metadata.workoutID.uuidString,
+            "schema_version": metadata.schemaVersion,
+            "byte_count": metadata.byteCount,
+            "payload": payload,
+        ]
+    }
+
+    public static func decodeImmediateWorkout(
+        _ dictionary: [String: Any]
+    ) throws -> (metadata: BadmintonWorkoutTransferMetadata, payload: Data) {
+        guard dictionary["message_type"] as? String
+                == BadmintonWorkoutTransferMessageType.workoutImmediate.rawValue else {
+            throw BadmintonWorkoutTransferCodecError.unsupportedMessageType
+        }
+        guard let payload = dictionary["payload"] as? Data else {
+            throw BadmintonWorkoutTransferCodecError.missingOrInvalidField(
+                "payload"
+            )
+        }
+        return (
+            metadata: .init(
+                workoutID: try decodeWorkoutID(dictionary),
+                schemaVersion: try decodeSchemaVersion(dictionary),
+                byteCount: try decodeByteCount(dictionary)
+            ),
+            payload: payload
         )
     }
 

@@ -97,6 +97,15 @@ final class BadmintonWorkoutTransferOutboxTests: XCTestCase {
             ),
             metadata
         )
+        let immediateMessage = BadmintonWorkoutTransferPropertyListCodec
+            .encodeImmediateWorkout(
+                metadata: metadata,
+                payload: originalBytes
+            )
+        let decodedImmediate = try BadmintonWorkoutTransferPropertyListCodec
+            .decodeImmediateWorkout(immediateMessage)
+        XCTAssertEqual(decodedImmediate.metadata, metadata)
+        XCTAssertEqual(decodedImmediate.payload, originalBytes)
         let acknowledgement = BadmintonWorkoutTransferAcknowledgement(
             workoutID: record.id,
             schemaVersion: record.schemaVersion

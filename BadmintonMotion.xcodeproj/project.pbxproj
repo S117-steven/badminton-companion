@@ -41,7 +41,32 @@
 		010000000000000000000020 /* ProductPhoneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002A /* ProductPhoneViewModel.swift */; };
 		010000000000000000000021 /* ProductPhoneSettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002B /* ProductPhoneSettingsViews.swift */; };
 		010000000000000000000022 /* ProductWorkoutConnectivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02000000000000000000002C /* ProductWorkoutConnectivityController.swift */; };
+		010000000000000000000023 /* BadmintonWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 020000000000000000000021 /* BadmintonWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0C0000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 080000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 050000000000000000000004;
+			remoteInfo = BadmintonProductWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		090000000000000000000001 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				010000000000000000000023 /* BadmintonWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		020000000000000000000001 /* BadmintonResearchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadmintonResearchApp.swift; sourceTree = "<group>"; };
@@ -293,10 +318,12 @@
 				070000000000000000000003 /* Sources */,
 				030000000000000000000003 /* Frameworks */,
 				060000000000000000000003 /* Resources */,
+				090000000000000000000001 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0D0000000000000000000001 /* PBXTargetDependency */,
 			);
 			name = BadmintonProductiOS;
 			packageProductDependencies = (
@@ -471,6 +498,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0D0000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 050000000000000000000004 /* BadmintonProductWatch */;
+			targetProxy = 0C0000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0A0000000000000000000001 /* Debug */ = {

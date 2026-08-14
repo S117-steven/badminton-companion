@@ -148,26 +148,31 @@ struct ProductWorkoutHistoryView: View {
 }
 
 private struct ProductWorkoutRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let workout: BadmintonWorkoutRecord
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
-            HStack {
-                Text(workout.startedAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(.headline)
-                Spacer()
-                if workout.provenance != .healthKitDevice {
-                    Text("模拟")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.orange)
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 4) {
+                    workoutDate
+                    provenanceBadge
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    durationLabel
+                    energyLabel
+                }
+            } else {
+                HStack {
+                    workoutDate
+                    Spacer()
+                    provenanceBadge
+                }
+                HStack(spacing: 18) {
+                    durationLabel
+                    energyLabel
                 }
             }
-            HStack(spacing: 18) {
-                Label(productDuration(workout.accumulatedActiveDurationSeconds), systemImage: "timer")
-                Label(productEnergy(workout.healthMetrics.activeEnergyKilocalories), systemImage: "flame")
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
             if workout.lifecycleState == .interrupted {
                 Label("运动异常中断，已保留检查点", systemImage: "exclamationmark.circle")
                     .font(.caption)
@@ -175,6 +180,38 @@ private struct ProductWorkoutRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private var workoutDate: some View {
+        Text(workout.startedAt.formatted(date: .abbreviated, time: .shortened))
+            .font(.headline)
+    }
+
+    @ViewBuilder
+    private var provenanceBadge: some View {
+        if workout.provenance != .healthKitDevice {
+            Text("模拟")
+                .font(.caption2.bold())
+                .foregroundStyle(.orange)
+        }
+    }
+
+    private var durationLabel: some View {
+        Label(
+            productDuration(workout.accumulatedActiveDurationSeconds),
+            systemImage: "timer"
+        )
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+    }
+
+    private var energyLabel: some View {
+        Label(
+            productEnergy(workout.healthMetrics.activeEnergyKilocalories),
+            systemImage: "flame"
+        )
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
     }
 }
 

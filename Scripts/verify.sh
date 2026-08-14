@@ -42,7 +42,7 @@ xcodebuild \
   -project BadmintonMotion.xcodeproj \
   -scheme BadmintonProductiOS \
   -configuration Debug \
-  -sdk iphonesimulator \
+  -destination "generic/platform=iOS Simulator" \
   -derivedDataPath "$verify_root/product-ios-derived" \
   -clonedSourcePackagesDirPath "$verify_root/product-ios-packages" \
   CODE_SIGNING_ALLOWED=NO \
@@ -73,6 +73,20 @@ xcodebuild \
   -clonedSourcePackagesDirPath "$verify_root/product-watch-packages" \
   CODE_SIGNING_ALLOWED=NO \
   build
+
+embedded_watch_info="$verify_root/product-ios-derived/Build/Products/Debug-iphonesimulator/Badminton.app/Watch/BadmintonWatch.app/Info.plist"
+if [ ! -f "$embedded_watch_info" ]; then
+  echo "Product iOS app does not embed its Watch companion app." >&2
+  exit 1
+fi
+
+companion_identifier=$(
+  plutil -extract WKCompanionAppBundleIdentifier raw -o - "$embedded_watch_info"
+)
+if [ "$companion_identifier" != "com.example.badmintonmotion" ]; then
+  echo "Product Watch app points at the wrong iOS companion identifier." >&2
+  exit 1
+fi
 
 product_watch_info="$verify_root/product-watch-derived/Build/Products/Debug-watchsimulator/BadmintonWatch.app/Info.plist"
 background_mode=$(plutil -extract WKBackgroundModes.0 raw -o - "$product_watch_info")

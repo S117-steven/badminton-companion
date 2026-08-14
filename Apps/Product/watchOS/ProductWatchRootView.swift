@@ -28,17 +28,19 @@ struct ProductWatchRootView: View {
 
     private var startPage: some View {
         ScrollView {
-            VStack(spacing: 12) {
-                Image(systemName: "figure.badminton")
-                    .font(.system(size: 42))
-                    .foregroundStyle(.green)
-                Text("羽毛球")
-                    .font(.title3.bold())
+            VStack(spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "figure.badminton")
+                        .font(.title3)
+                        .foregroundStyle(.green)
+                    Text("羽毛球")
+                        .font(.headline)
+                }
                 Text("请确认手表佩戴在持拍手，并保持表带稳固贴合。")
                     .font(.caption2)
                     .multilineTextAlignment(.center)
 #if targetEnvironment(simulator)
-                Text("SIMULATOR 流程数据 · 不写入健康")
+                Text("SIMULATOR · 不写入健康")
                     .font(.caption2.bold())
                     .foregroundStyle(.orange)
 #endif
@@ -46,6 +48,7 @@ struct ProductWatchRootView: View {
                     Task { await model.start() }
                 }
                 .buttonStyle(.borderedProminent)
+                .controlSize(.small)
                 .disabled([
                     BadmintonWorkoutSessionPhase.recovering,
                     BadmintonWorkoutSessionPhase.requestingAuthorization,
@@ -65,7 +68,8 @@ struct ProductWatchRootView: View {
                 }
                 errorText
             }
-            .padding()
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
         }
     }
 

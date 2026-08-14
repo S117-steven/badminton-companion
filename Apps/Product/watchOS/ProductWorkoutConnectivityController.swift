@@ -13,6 +13,7 @@ extension Notification.Name {
 final class ProductWorkoutConnectivityController: NSObject, WCSessionDelegate,
     @unchecked Sendable {
     static let shared = ProductWorkoutConnectivityController()
+    private static let immediateTransferByteLimit: Int64 = 48 * 1_024
 
     private let outbox: BadmintonWorkoutTransferOutbox
     private let snapshotStore: BadmintonWorkoutTransferSnapshotStore
@@ -87,10 +88,15 @@ final class ProductWorkoutConnectivityController: NSObject, WCSessionDelegate,
         _ session: WCSession,
         didReceiveUserInfo userInfo: [String: Any] = [:]
     ) {
+        Self.handleAcknowledgement(userInfo, using: outbox)
+    }
+
+    private static func handleAcknowledgement(
+        _ dictionary: [String: Any],
+        using outbox: BadmintonWorkoutTransferOutbox
+    ) {
         guard let acknowledgement = try? BadmintonWorkoutTransferPropertyListCodec
-            .decodeAcknowledgement(userInfo) else {
-            return
-        }
+            .decodeAcknowledgement(dictionary) else { return }
         Task { [outbox] in
             do {
                 _ = try await outbox.acknowledge(acknowledgement)
@@ -106,8 +112,8 @@ final class ProductWorkoutConnectivityController: NSObject, WCSessionDelegate,
 
     func session(
         _ session: WCSession,
-        fileTransfer: WCSessionFileTransfer,
-        didFinish error: Error?
+        didFinish fileTransfer: WCSessionFileTransfer,
+        error: Error?
     ) {
         let snapshotURL = fileTransfer.file.fileURL
         Task { [snapshotStore] in
@@ -138,20 +144,38 @@ final class ProductWorkoutConnectivityController: NSObject, WCSessionDelegate,
         snapshotStore: BadmintonWorkoutTransferSnapshotStore
     ) async throws {
         let snapshot = try await snapshotStore.createSnapshot(for: request)
+        let metadata = BadmintonWorkoutTransferMetadata(
+            workoutID: snapshot.workoutID,
+            schemaVersion: snapshot.schemaVersion,
+            byteCount: snapshot.file.byteCount
+        )
+
         session.transferFile(
             snapshot.file.url,
             metadata: BadmintonWorkoutTransferPropertyListCodec.encode(
-                metadata: .init(
-                    workoutID: snapshot.workoutID,
-                    schemaVersion: snapshot.schemaVersion,
-                    byteCount: snapshot.file.byteCount
-                )
+                metadata: metadata
             )
         )
         _ = try await outbox.markEnqueued(
             workoutID: snapshot.workoutID,
             schemaVersion: snapshot.schemaVersion
         )
+
+        if session.isReachable,
+           metadata.byteCount <= immediateTransferByteLimit,
+           let payload = try? Data(contentsOf: snapshot.file.url) {
+            session.sendMessage(
+                BadmintonWorkoutTransferPropertyListCodec.encodeImmediateWorkout(
+                    metadata: metadata,
+                    payload: payload
+                ),
+                replyHandler: { reply in
+                    handleAcknowledgement(reply, using: outbox)
+                },
+                errorHandler: nil
+            )
+        }
+
         NotificationCenter.default.post(
             name: .productWorkoutSyncChanged,
             object: snapshot.workoutID

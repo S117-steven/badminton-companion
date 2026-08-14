@@ -8,6 +8,18 @@ extension Notification.Name {
     )
 }
 
+private final class ProductWorkoutMessageReplyHandler: @unchecked Sendable {
+    private let handler: ([String: Any]) -> Void
+
+    init(_ handler: @escaping ([String: Any]) -> Void) {
+        self.handler = handler
+    }
+
+    func callAsFunction(_ message: [String: Any]) {
+        handler(message)
+    }
+}
+
 final class ProductPhoneConnectivityController: NSObject, WCSessionDelegate,
     @unchecked Sendable {
     static let shared = ProductPhoneConnectivityController()
@@ -93,6 +105,62 @@ final class ProductPhoneConnectivityController: NSObject, WCSessionDelegate,
                 )
             } catch {
                 // No acknowledgement is sent. The watch retains and retries.
+            }
+        }
+    }
+
+    func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        guard let immediate = try? BadmintonWorkoutTransferPropertyListCodec
+            .decodeImmediateWorkout(message) else {
+            return
+        }
+
+        let stagedURL: URL
+        let reply = ProductWorkoutMessageReplyHandler(replyHandler)
+        do {
+            try fileManager.createDirectory(
+                at: stagingDirectory,
+                withIntermediateDirectories: true
+            )
+            stagedURL = stagingDirectory
+                .appendingPathComponent(
+                    immediate.metadata.workoutID.uuidString.lowercased()
+                )
+                .appendingPathExtension(UUID().uuidString.lowercased())
+            try immediate.payload.write(to: stagedURL, options: .atomic)
+        } catch {
+            return
+        }
+
+        Task { [inbox, fileManager] in
+            defer { try? fileManager.removeItem(at: stagedURL) }
+            do {
+                let result = try await inbox.receive(
+                    fileAt: stagedURL,
+                    metadata: immediate.metadata
+                )
+                let workoutID: UUID
+                switch result {
+                case .imported(let id), .duplicate(let id): workoutID = id
+                }
+                reply(
+                    BadmintonWorkoutTransferPropertyListCodec.encode(
+                        acknowledgement: .init(
+                            workoutID: workoutID,
+                            schemaVersion: immediate.metadata.schemaVersion
+                        )
+                    )
+                )
+                NotificationCenter.default.post(
+                    name: .productWorkoutImported,
+                    object: workoutID
+                )
+            } catch {
+                // The background file remains the reliable fallback.
             }
         }
     }
